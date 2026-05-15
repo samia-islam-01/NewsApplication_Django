@@ -1,79 +1,43 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Article</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Create Article — NewsApp{% endblock %}
+{% block content %}
+<h2 class="fw-bold mb-4">Create Article</h2>
 
-<h1>Create Article</h1>
+<form method="POST" class="row g-3">
+  {% csrf_token %}
+  <div class="col-12">
+    <label for="title" class="form-label">Title</label>
+    <input type="text" class="form-control" id="title" name="title" placeholder="Article Title" required>
+  </div>
+  <div class="col-12">
+    <label for="content" class="form-label">Content</label>
+    <textarea class="form-control" id="content" name="content" rows="10" placeholder="Article Content" required></textarea>
+  </div>
 
-<form method="POST">
+  {% if publishers %}
+  <div class="col-12">
+    <h5>Publishing Type</h5>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="publish_mode" id="mode_independent" value="independent" checked>
+      <label class="form-check-label" for="mode_independent">Publish Independently</label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="publish_mode" id="mode_publisher" value="publisher">
+      <label class="form-check-label" for="mode_publisher">Publish Under Publisher</label>
+    </div>
+    <div class="mt-2">
+      <select class="form-select" name="publisher">
+        {% for publisher in publishers %}
+        <option value="{{ publisher.id }}">{{ publisher.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  {% endif %}
 
-    {% csrf_token %}
-
-    <input type="text"
-           name="title"
-           placeholder="Article Title"
-           required>
-
-    <br><br>
-
-    <textarea name="content"
-              placeholder="Article Content"
-              rows="10"
-              cols="50"
-              required></textarea>
-
-    <br><br>
-
-    {% if publishers %}
-
-        <h3>Publishing Type</h3>
-
-        <input type="radio"
-               name="publish_mode"
-               value="independent"
-               checked>
-
-        Publish Independently
-
-        <br>
-
-        <input type="radio"
-               name="publish_mode"
-               value="publisher">
-
-        Publish Under Publisher
-
-        <br><br>
-
-        <select name="publisher">
-
-            {% for publisher in publishers %}
-
-                <option value="{{ publisher.id }}">
-                    {{ publisher.name }}
-                </option>
-
-            {% endfor %}
-
-        </select>
-
-    {% endif %}
-
-    <br><br>
-
-    <button type="submit">
-        Create Article
-    </button>
-
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">Create Article</button>
+    <a href="{% url 'authenticator:welcome' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+  </div>
 </form>
-
-<br>
-
-<a href="{% url 'authenticator:welcome' %}">
-    <button>🏠 Back to Home</button>
-</a>
-
-</body>
-</html>
+{% endblock %}

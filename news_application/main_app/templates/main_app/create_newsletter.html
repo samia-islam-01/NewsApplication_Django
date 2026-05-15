@@ -1,82 +1,63 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Newsletter</title>
-</head>
-<body>
-
-<h2>Create Newsletter</h2>
-
-<form method="POST">
-    {% csrf_token %}
-
-    <label>Title:</label><br>
-    <input type="text" name="title" required><br><br>
-
-    <label>Description:</label><br>
-    <textarea name="description" required></textarea><br><br>
-
-    <label>Select Articles:</label><br>
-
-    {% for article in articles %}
-        <input type="checkbox" name="articles" value="{{ article.id }}">
-        {{ article.title }}<br>
-    {% endfor %}
-
-    <br>
-
-    {% if publishers %}
-
-        <h3>Publishing Type</h3>
-
-        <input type="radio"
-               name="publish_mode"
-               value="independent"
-               checked>
-
-        Publish Independently
-
-        <br>
-
-        <input type="radio"
-               name="publish_mode"
-               value="publisher">
-
-        Publish Under Publisher
-
-        <br><br>
-
-        <select name="publisher">
-
-            {% for publisher in publishers %}
-
-                <option value="{{ publisher.id }}">
-                    {{ publisher.name }}
-                </option>
-
-            {% endfor %}
-
-        </select>
-
-    {% endif %}
-
-    <br><br>
-
-    <button type="submit">Create</button>
-</form>
+{% extends "base.html" %}
+{% block title %}Create Newsletter — NewsApp{% endblock %}
+{% block content %}
+<h2 class="fw-bold mb-4">Create Newsletter</h2>
 
 {% if error %}
-    <p style="color:red;">{{ error }}</p>
+<div class="alert alert-danger">{{ error }}</div>
 {% endif %}
 
-<br>
+<form method="POST" class="row g-3">
+  {% csrf_token %}
 
-<a href="{% url 'main_app:newsletter_catalogue' %}">
-    <button>📄 Newsletters</button>
-</a>
+  <div class="col-12">
+    <label for="title" class="form-label">Title</label>
+    <input type="text" class="form-control" id="title" name="title" required>
+  </div>
 
-<a href="{% url 'authenticator:welcome' %}">
-    <button>🏠 Home</button>
-</a>
-</body>
-</html>
+  <div class="col-12">
+    <label for="description" class="form-label">Description</label>
+    <textarea class="form-control" id="description" name="description" required></textarea>
+  </div>
+
+  <div class="col-12">
+    <label class="form-label">Select Articles</label>
+    <div class="row g-2">
+      {% for article in articles %}
+      <div class="col-md-6">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="articles" value="{{ article.id }}" id="article_{{ article.id }}">
+          <label class="form-check-label" for="article_{{ article.id }}">{{ article.title }}</label>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if publishers %}
+  <div class="col-12">
+    <h5>Publishing Type</h5>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="publish_mode" id="mode_independent" value="independent" checked>
+      <label class="form-check-label" for="mode_independent">Publish Independently</label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="publish_mode" id="mode_publisher" value="publisher">
+      <label class="form-check-label" for="mode_publisher">Publish Under Publisher</label>
+    </div>
+    <div class="mt-2">
+      <select class="form-select" name="publisher">
+        {% for publisher in publishers %}
+        <option value="{{ publisher.id }}">{{ publisher.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">Create Newsletter</button>
+    <a href="{% url 'main_app:newsletter_catalogue' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+  </div>
+</form>
+{% endblock %}

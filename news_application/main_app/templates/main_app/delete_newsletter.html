@@ -1,26 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Delete Newsletter</title>
-</head>
-<body>
-
-<h2>Delete Newsletter</h2>
-
-<p>Are you sure you want to delete:</p>
-
-<h3>{{ newsletter.title }}</h3>
-
-<form method="POST">
-    {% csrf_token %}
-    <button type="submit">Yes, Delete</button>
-</form>
-
-<br>
-
-<a href="{% url 'main_app:newsletter_catalogue' %}">
-    <button>Cancel</button>
-</a>
-
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Delete Newsletter — NewsApp{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body text-center p-5">
+        <h3 class="card-title">Delete Newsletter</h3>
+        <p class="text-muted">Are you sure you want to delete:</p>
+        <h5 class="mb-4">{{ newsletter.title }}</h5>
+        <form method="POST">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger me-2">Yes, Delete</button>
+          <a href="{% url 'main_app:newsletter_catalogue' %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

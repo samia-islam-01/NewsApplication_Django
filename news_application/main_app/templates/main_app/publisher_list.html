@@ -1,121 +1,62 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Publishers</title>
-</head>
-<body>
-
-<h1>Publishers</h1>
-
-{% if user.role == 'editor' %}
-
-    <a href="{% url 'main_app:create_publisher' %}">
-        <button>Create Publisher</button>
-    </a>
-
-    <br><br>
-
-{% endif %}
-
-{% for publisher in publishers %}
-
-<div style="margin-bottom:20px; border:1px solid black; padding:10px;">
-
-    <h2>{{ publisher.name }}</h2>
-
-    <p>{{ publisher.description }}</p>
-
-    <p>
-        <strong>Journalists:</strong>
-    </p>
-
-    <ul>
-        {% for journalist in publisher.journalists.all %}
-
-            <li>{{ journalist.username }}</li>
-
-        {% empty %}
-
-            <li>No journalists assigned</li>
-
-        {% endfor %}
-    </ul>
-
-    <p>
-        <strong>Editors:</strong>
-    </p>
-
-    <ul>
-        {% for editor in publisher.editors.all %}
-
-            <li>{{ editor.username }}</li>
-
-        {% empty %}
-
-            <li>No editors assigned</li>
-
-        {% endfor %}
-    </ul>
-
-    <p>
-        <strong>Published Articles:</strong>
-    </p>
-
-    <ul>
-
-        {% for article in publisher.article_set.all %}
-
-            {% if article.approved %}
-
-                <li>
-
-                    <a href="{% url 'main_app:view_article' article.id %}">
-                        {{ article.title }}
-                    </a>
-
-                </li>
-
-            {% endif %}
-
-        {% empty %}
-
-            <li>No published articles</li>
-
-        {% endfor %}
-
-    </ul>
-
-    {% if user.is_authenticated and user.role == 'reader' %}
-
-        {% if publisher in user.subscriptions_to_publishers.all %}
-
-            <a href="{% url 'main_app:unsubscribe_publisher' publisher.id %}">
-                <button>Unsubscribe</button>
-            </a>
-
-        {% else %}
-
-            <a href="{% url 'main_app:subscribe_publisher' publisher.id %}">
-                <button>Subscribe</button>
-            </a>
-
-        {% endif %}
-
-    {% endif %}
-
+{% extends "base.html" %}
+{% block title %}Publishers — NewsApp{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="fw-bold mb-0">Publishers</h2>
+  {% if user.role == 'editor' %}
+  <a href="{% url 'main_app:create_publisher' %}" class="btn btn-primary">+ Create Publisher</a>
+  {% endif %}
 </div>
 
+{% for publisher in publishers %}
+<div class="card mb-4 shadow-sm">
+  <div class="card-body">
+    <h4 class="card-title">{{ publisher.name }}</h4>
+    <p class="text-muted">{{ publisher.description }}</p>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <h6>Journalists</h6>
+        <ul class="list-unstyled mb-0">
+          {% for journalist in publisher.journalists.all %}
+            <li>{{ journalist.username }}</li>
+          {% empty %}
+            <li class="text-muted">No journalists assigned</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <h6>Editors</h6>
+        <ul class="list-unstyled mb-0">
+          {% for editor in publisher.editors.all %}
+            <li>{{ editor.username }}</li>
+          {% empty %}
+            <li class="text-muted">No editors assigned</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <h6>Published Articles</h6>
+    <ul class="list-unstyled mb-3">
+      {% for article in publisher.article_set.all %}
+        {% if article.approved %}
+          <li><a href="{% url 'main_app:view_article' article.id %}">{{ article.title }}</a></li>
+        {% endif %}
+      {% empty %}
+        <li class="text-muted">No published articles</li>
+      {% endfor %}
+    </ul>
+    {% if user.is_authenticated and user.role == 'reader' %}
+    <div>
+      {% if publisher in user.subscriptions_to_publishers.all %}
+        <a href="{% url 'main_app:unsubscribe_publisher' publisher.id %}" class="btn btn-outline-danger btn-sm">Unsubscribe</a>
+      {% else %}
+        <a href="{% url 'main_app:subscribe_publisher' publisher.id %}" class="btn btn-outline-primary btn-sm">Subscribe</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
 {% empty %}
-
-    <p>No publishers created yet.</p>
-
+<p class="text-muted">No publishers created yet.</p>
 {% endfor %}
-
-<br>
-
-<a href="{% url 'authenticator:welcome' %}">
-    <button>🏠 Back to Home</button>
-</a>
-
-</body>
-</html>
+{% endblock %}
