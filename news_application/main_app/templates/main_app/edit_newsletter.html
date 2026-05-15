@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Newsletter</title>
+</head>
+<body>
+
+<h2>Edit Newsletter</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <label>Title:</label><br>
+    <input type="text" name="title" value="{{ newsletter.title }}" required><br><br>
+
+    <label>Description:</label><br>
+    <textarea name="description" required>{{ newsletter.description }}</textarea><br><br>
+
+    <label>Select Articles:</label><br>
+
+    {% for article in articles %}
+        <input type="checkbox" name="articles" value="{{ article.id }}"
+            {% if article in newsletter.articles.all %}checked{% endif %}>
+        {{ article.title }}<br>
+    {% endfor %}
+
+    <br>
+
+    <button type="submit">Save Changes</button>
+</form>
+
+{% if error %}
+    <p style="color:red;">{{ error }}</p>
+{% endif %}
+
+<br>
+
+<a href="{% url 'main_app:newsletter_catalogue' %}">
+    <button>Back</button>
+</a>
+
+</body>
+</html>

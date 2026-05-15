@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Article</title>
+</head>
+<h2>Edit Article</h2>
+<body>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <input type="text" name="title" value="{{ article.title }}"><br><br>
+    <textarea name="content">{{ article.content }}</textarea><br><br>
+
+    {% if request.user.groups.all.0.name == "Editor" %}
+        <label>
+            Approved:
+            <input type="checkbox" name="approved" {% if article.approved %}checked{% endif %}>
+        </label>
+    {% endif %}
+
+    <button type="submit">Save</button>
+</form>
+
+</body>
+</html>

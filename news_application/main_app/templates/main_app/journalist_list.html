@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Journalists</title>
+</head>
+<body>
+
+<h1>Journalists</h1>
+
+{% for journalist in journalists %}
+
+    <div style="margin-bottom:20px; border:1px solid black; padding:10px;">
+
+        <h3>{{ journalist.username }}</h3>
+
+        <p>
+            <strong>Written Articles:</strong>
+        </p>
+
+        <ul>
+
+            {% for article in journalist.article_set.all %}
+
+                {% if article.approved %}
+
+                    <li>
+
+                        <a href="{% url 'main_app:view_article' article.id %}">
+                            {{ article.title }}
+                        </a>
+
+                    </li>
+
+                {% endif %}
+
+            {% empty %}
+
+                <li>No articles yet</li>
+
+            {% endfor %}
+
+        </ul>
+
+        {% if user.is_authenticated and user.role == 'reader' %}
+
+            {% if journalist in user.subscriptions_to_journalists.all %}
+
+                <a href="{% url 'main_app:unsubscribe_journalist' journalist.id %}">
+                    <button>Unsubscribe</button>
+                </a>
+
+            {% else %}
+
+                <a href="{% url 'main_app:subscribe_journalist' journalist.id %}">
+                    <button>Subscribe</button>
+                </a>
+
+            {% endif %}
+
+        {% endif %}
+
+    </div>
+
+{% empty %}
+
+    <p>No journalists found.</p>
+
+{% endfor %}
+
+<br>
+
+<a href="{% url 'authenticator:welcome' %}">
+    <button>🏠 Back to Home</button>
+</a>
+
+</body>
+</html>

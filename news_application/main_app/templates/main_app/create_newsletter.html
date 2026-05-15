@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Newsletter</title>
+</head>
+<body>
+
+<h2>Create Newsletter</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <label>Title:</label><br>
+    <input type="text" name="title" required><br><br>
+
+    <label>Description:</label><br>
+    <textarea name="description" required></textarea><br><br>
+
+    <label>Select Articles:</label><br>
+
+    {% for article in articles %}
+        <input type="checkbox" name="articles" value="{{ article.id }}">
+        {{ article.title }}<br>
+    {% endfor %}
+
+    <br>
+
+    {% if publishers %}
+
+        <h3>Publishing Type</h3>
+
+        <input type="radio"
+               name="publish_mode"
+               value="independent"
+               checked>
+
+        Publish Independently
+
+        <br>
+
+        <input type="radio"
+               name="publish_mode"
+               value="publisher">
+
+        Publish Under Publisher
+
+        <br><br>
+
+        <select name="publisher">
+
+            {% for publisher in publishers %}
+
+                <option value="{{ publisher.id }}">
+                    {{ publisher.name }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+    {% endif %}
+
+    <br><br>
+
+    <button type="submit">Create</button>
+</form>
+
+{% if error %}
+    <p style="color:red;">{{ error }}</p>
+{% endif %}
+
+<br>
+
+<a href="{% url 'main_app:newsletter_catalogue' %}">
+    <button>📄 Newsletters</button>
+</a>
+
+<a href="{% url 'authenticator:welcome' %}">
+    <button>🏠 Home</button>
+</a>
+</body>
+</html>

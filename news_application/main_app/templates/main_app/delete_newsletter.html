@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Newsletter</title>
+</head>
+<body>
+
+<h2>Delete Newsletter</h2>
+
+<p>Are you sure you want to delete:</p>
+
+<h3>{{ newsletter.title }}</h3>
+
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit">Yes, Delete</button>
+</form>
+
+<br>
+
+<a href="{% url 'main_app:newsletter_catalogue' %}">
+    <button>Cancel</button>
+</a>
+
+</body>
+</html>

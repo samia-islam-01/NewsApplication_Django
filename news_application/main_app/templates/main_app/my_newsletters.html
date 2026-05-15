@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Newsletters</title>
+</head>
+<body>
+
+    <h1>My Newsletters</h1>
+
+    <!-- Create new product -->
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'main_app:create_newsletter' %}">
+            <button>➕ Create New Newsletter</button>
+        </a>
+
+    </div>
+
+    {% if newsletters %}
+        <table border="1" cellpadding="10">
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Time Created At</th>
+                <th>Articles</th>
+            </tr>
+
+            {% for newsletter in newsletters %}
+                <tr>
+                    <td>{{ newsletter.title }}</td>
+
+                    <td>{{ newsletter.author }}</td>
+
+                    <td>{{ newsletter.created_at }}</td>
+
+                    <td>
+                        {% for article in newsletter.articles.all %}
+
+                            <a href="{% url 'main_app:view_article' article.id %}">
+                                {{ article.title }}
+                            </a>
+
+                            <br>
+
+                        {% empty %}
+                            No articles
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>You have no newsletters yet.</p>
+    {% endif %}
+
+    <br>
+
+    <!-- Navigation -->
+    <a href="{% url 'authenticator:welcome' %}">
+        <button>🏠 Back to Home</button>
+    </a>
+
+</body>
+</html>

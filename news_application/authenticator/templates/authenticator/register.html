@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+</head>
+<body>
+    <h2>Register An Account</h2>
+
+    <!-- This form sends registration info to the backend -->
+    <form method="POST" action="{% url 'authenticator:register' %}">
+        {% csrf_token %}  <!-- Protects against cross-site attacks -->
+
+        <!-- Username input -->
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+
+        <!-- Email input -->
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+
+        <!-- Password input -->
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+
+        <!-- Password confirmation -->
+        <label for="password_confirm">Re-enter password</label>
+        <input type="password" id="password_confirm" name="password_confirm" required>
+        <br>
+
+        <!-- Role choice -->
+        <label>Account Type:</label><br>
+        <input type="radio" name="role" value="reader" required> Reader
+        <input type="radio" name="role" value="journalist"> Journalist
+        <input type="radio" name="role" value="editor"> Editor
+        <br>
+
+        <!-- Error message display -->
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+
+        <!-- Submit button -->
+        <button type="submit">Register</button>
+        <br>
+    </form>
+
+
+
+    <!-- Link to login page -->
+    <p>Already have an account? <a href="{% url 'authenticator:login' %}">Login here</a></p>
+</body>
+</html>

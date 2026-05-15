@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Newsletters</title>
+</head>
+<body>
+
+<h2>All Newsletters</h2>
+
+<form method="GET">
+    <input type="text" name="q" placeholder="Search newsletters">
+    <button type="submit">Search</button>
+</form>
+
+<br>
+
+{% for newsletter in newsletters %}
+    <hr>
+    <h3><a href="{% url 'main_app:view_newsletter' newsletter.id %}">
+        {{ newsletter.title }}
+    </a></h3>
+    <h4>By: {{ newsletter.author }}</h4>
+    <p>{{ article.content }}</p>
+    <p>
+        {% for article in newsletter.articles.all %}
+            {{ article.title }}<br>
+        {% empty %}
+            No articles
+        {% endfor %}
+    </p>
+{% endfor %}
+
+<br>
+
+{% if request.user.groups.all.0.name == "Journalist" %}
+    <a href="{% url 'main_app:create_newsletter' %}">
+        <button>Create Newsletter</button>
+    </a>
+{% endif %}
+
+<br>
+<br>
+    <!-- Navigation -->
+    <a href="{% url 'main_app:article_catalogue' %}">
+        <button>📄 Articles</button>
+    </a>
+
+    <a href="{% url 'authenticator:welcome' %}">
+        <button>🏠 Back to Home</button>
+    </a>
+
+</body>
+</html>

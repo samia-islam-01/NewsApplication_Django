@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Publishers</title>
+</head>
+<body>
+
+<h1>Publishers</h1>
+
+{% if user.role == 'editor' %}
+
+    <a href="{% url 'main_app:create_publisher' %}">
+        <button>Create Publisher</button>
+    </a>
+
+    <br><br>
+
+{% endif %}
+
+{% for publisher in publishers %}
+
+<div style="margin-bottom:20px; border:1px solid black; padding:10px;">
+
+    <h2>{{ publisher.name }}</h2>
+
+    <p>{{ publisher.description }}</p>
+
+    <p>
+        <strong>Journalists:</strong>
+    </p>
+
+    <ul>
+        {% for journalist in publisher.journalists.all %}
+
+            <li>{{ journalist.username }}</li>
+
+        {% empty %}
+
+            <li>No journalists assigned</li>
+
+        {% endfor %}
+    </ul>
+
+    <p>
+        <strong>Editors:</strong>
+    </p>
+
+    <ul>
+        {% for editor in publisher.editors.all %}
+
+            <li>{{ editor.username }}</li>
+
+        {% empty %}
+
+            <li>No editors assigned</li>
+
+        {% endfor %}
+    </ul>
+
+    <p>
+        <strong>Published Articles:</strong>
+    </p>
+
+    <ul>
+
+        {% for article in publisher.article_set.all %}
+
+            {% if article.approved %}
+
+                <li>
+
+                    <a href="{% url 'main_app:view_article' article.id %}">
+                        {{ article.title }}
+                    </a>
+
+                </li>
+
+            {% endif %}
+
+        {% empty %}
+
+            <li>No published articles</li>
+
+        {% endfor %}
+
+    </ul>
+
+    {% if user.is_authenticated and user.role == 'reader' %}
+
+        {% if publisher in user.subscriptions_to_publishers.all %}
+
+            <a href="{% url 'main_app:unsubscribe_publisher' publisher.id %}">
+                <button>Unsubscribe</button>
+            </a>
+
+        {% else %}
+
+            <a href="{% url 'main_app:subscribe_publisher' publisher.id %}">
+                <button>Subscribe</button>
+            </a>
+
+        {% endif %}
+
+    {% endif %}
+
+</div>
+
+{% empty %}
+
+    <p>No publishers created yet.</p>
+
+{% endfor %}
+
+<br>
+
+<a href="{% url 'authenticator:welcome' %}">
+    <button>🏠 Back to Home</button>
+</a>
+
+</body>
+</html>

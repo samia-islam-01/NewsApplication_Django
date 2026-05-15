@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ article.title }}</title>
+</head>
+<body>
+
+<h1>{{ article.title }}</h1>
+
+<p>
+    Published by:
+
+    {% if article.publisher %}
+        {{ article.publisher.name }}
+        <br>
+        Written by {{ article.author.username }}
+    {% else %}
+        {{ article.author.username }}
+    {% endif %}
+</p>
+
+<p>
+    Published:
+    {{ article.created_at }}
+</p>
+
+<hr>
+
+<p>{{ article.content }}</p>
+
+<br>
+
+    <!-- Navigation -->
+    <a href="{% url 'main_app:article_catalogue' %}">
+        <button>📄 Articles</button>
+    </a>
+
+    <a href="{% url 'authenticator:welcome' %}">
+        <button>🏠 Back to Home</button>
+    </a>
+
+</body>
+</html>

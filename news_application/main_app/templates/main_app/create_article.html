@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Article</title>
+</head>
+<body>
+
+<h1>Create Article</h1>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <input type="text"
+           name="title"
+           placeholder="Article Title"
+           required>
+
+    <br><br>
+
+    <textarea name="content"
+              placeholder="Article Content"
+              rows="10"
+              cols="50"
+              required></textarea>
+
+    <br><br>
+
+    {% if publishers %}
+
+        <h3>Publishing Type</h3>
+
+        <input type="radio"
+               name="publish_mode"
+               value="independent"
+               checked>
+
+        Publish Independently
+
+        <br>
+
+        <input type="radio"
+               name="publish_mode"
+               value="publisher">
+
+        Publish Under Publisher
+
+        <br><br>
+
+        <select name="publisher">
+
+            {% for publisher in publishers %}
+
+                <option value="{{ publisher.id }}">
+                    {{ publisher.name }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+    {% endif %}
+
+    <br><br>
+
+    <button type="submit">
+        Create Article
+    </button>
+
+</form>
+
+<br>
+
+<a href="{% url 'authenticator:welcome' %}">
+    <button>🏠 Back to Home</button>
+</a>
+
+</body>
+</html>

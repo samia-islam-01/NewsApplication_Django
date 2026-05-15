@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Subscriptions</title>
+</head>
+<body>
+
+<h1>My Subscriptions</h1>
+
+<hr>
+
+<h2>Journalists</h2>
+
+{% for journalist in journalists %}
+
+    <div style="border:1px solid black; padding:15px; margin-bottom:20px;">
+
+        <h3>{{ journalist.username }}</h3>
+
+        <a href="{% url 'main_app:unsubscribe_journalist' journalist.id %}">
+            Unsubscribe
+        </a>
+
+        <h4>Articles</h4>
+
+        {% for article in journalist.article_set.all %}
+
+            {% if article.approved %}
+
+                <p>
+                    <a href="{% url 'main_app:view_article' article.id %}">
+                        {{ article.title }}
+                    </a>
+                </p>
+
+            {% endif %}
+
+        {% empty %}
+
+            <p>No articles yet.</p>
+
+        {% endfor %}
+
+        <h4>Newsletters</h4>
+
+        {% for newsletter in journalist.newsletter_set.all %}
+
+            <p>
+                <a href="{% url 'main_app:view_newsletter' newsletter.id %}">
+                    {{ newsletter.title }}
+                </a>
+            </p>
+
+        {% empty %}
+
+            <p>No newsletters yet.</p>
+
+        {% endfor %}
+
+    </div>
+
+{% empty %}
+
+    <p>No journalist subscriptions.</p>
+
+{% endfor %}
+
+<hr>
+
+<h2>Publishers</h2>
+
+{% for publisher in publishers %}
+
+    <div style="border:1px solid black; padding:15px; margin-bottom:20px;">
+
+        <h3>{{ publisher.name }}</h3>
+
+        <a href="{% url 'main_app:unsubscribe_publisher' publisher.id %}">
+            Unsubscribe
+        </a>
+
+        <h4>Articles</h4>
+
+        {% for article in publisher.article_set.all %}
+
+            {% if article.approved %}
+
+                <p>
+                    <a href="{% url 'main_app:view_article' article.id %}">
+                        {{ article.title }}
+                    </a>
+                </p>
+
+            {% endif %}
+
+        {% empty %}
+
+            <p>No articles yet.</p>
+
+        {% endfor %}
+
+        <h4>Newsletters</h4>
+
+        {% for newsletter in publisher.newsletter_set.all %}
+
+            <p>
+                <a href="{% url 'main_app:view_newsletter' newsletter.id %}">
+                    {{ newsletter.title }}
+                </a>
+            </p>
+
+        {% empty %}
+
+            <p>No newsletters yet.</p>
+
+        {% endfor %}
+
+    </div>
+
+{% empty %}
+
+    <p>No publisher subscriptions.</p>
+
+{% endfor %}
+
+<br>
+
+<a href="{% url 'authenticator:welcome' %}">
+    <button>🏠 Home</button>
+</a>
+
+</body>
+</html>

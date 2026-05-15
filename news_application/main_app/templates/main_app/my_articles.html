@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Articles</title>
+</head>
+<body>
+
+    <h1>My Articles</h1>
+
+    <!-- Create new product -->
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'main_app:create_article' %}">
+            <button>➕ Create New Article</button>
+        </a>
+
+    </div>
+
+    {% if articles %}
+        {% for article in articles %}
+            <hr>
+            <h3>{{ article.title }}</h3>
+            <h4>Created at: {{ article.created_at }}</h4>
+            <p>{{ article.content }}</p>
+        {% endfor %}
+    {% else %}
+        <p>You have no articles yet.</p>
+    {% endif %}
+
+    <br>
+
+    <!-- Navigation -->
+    <a href="{% url 'authenticator:welcome' %}">
+        <button>🏠 Back to Home</button>
+    </a>
+
+</body>
+</html>

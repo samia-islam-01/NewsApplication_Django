@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Publisher</title>
+</head>
+<body>
+
+<h1>Create Publisher</h1>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <input type="text"
+           name="name"
+           placeholder="Publisher Name"
+           required>
+
+    <br><br>
+
+    <textarea name="description"
+              placeholder="Description"></textarea>
+
+    <br><br>
+
+    <h3>Select Journalists</h3>
+
+    {% for journalist in journalists %}
+
+        <input type="checkbox"
+               name="journalists"
+               value="{{ journalist.id }}">
+
+        {{ journalist.username }}
+
+        <br>
+
+    {% empty %}
+
+        <p>No journalists available</p>
+
+    {% endfor %}
+
+    <br>
+
+    <h3>Select Editors</h3>
+
+    {% for editor in editors %}
+
+        <input type="checkbox"
+               name="editors"
+               value="{{ editor.id }}">
+
+        {{ editor.username }}
+
+        <br>
+
+    {% empty %}
+
+        <p>No editors available</p>
+
+    {% endfor %}
+
+    <br>
+
+    <button type="submit">
+        Create Publisher
+    </button>
+
+</form>
+
+<br>
+
+<a href="{% url 'authenticator:welcome' %}">
+    <button>🏠 Back to Home</button>
+</a>
+
+</body>
+</html>

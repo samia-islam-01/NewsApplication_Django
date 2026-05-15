@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+</head>
+<body>
+    <h1>Welcome, {{ request.user.username }}!</h1>
+
+    <form method="POST" action="{% url 'authenticator:logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+
+    <hr>
+
+    <h3>Catalogues</h3>
+    <a href="{% url 'main_app:article_catalogue' %}">
+        <button>Articles</button>
+    </a>
+
+    <a href="{% url 'main_app:newsletter_catalogue' %}">
+        <button>Newsletters</button>
+    </a>
+
+    <!-- READER DASHBOARD -->
+    <a href="{% url 'main_app:publisher_list' %}">
+        <button>Publishers</button>
+    </a>
+
+    <a href="{% url 'main_app:journalist_list' %}">
+        <button>Journalists</button>
+    </a>
+
+    {% if user.role == 'reader' %}
+
+        <a href="{% url 'main_app:my_subscriptions' %}">
+            <button>My Subscriptions</button>
+        </a>
+
+    {% endif %}
+
+    <!-- JOURNALIST DASHBOARD -->
+    {% if request.user.groups.all.0.name == "Journalist" %}
+    <hr>
+    <h3>Journalist Dashboard</h3>
+
+    <a href="{% url 'main_app:my_articles' %}">
+        <button>My Articles</button>
+    </a>
+
+    <a href="{% url 'main_app:create_article' %}">
+        <button>Create Article</button>
+    </a>
+
+    <a href="{% url 'main_app:create_newsletter' %}">
+        <button>Create Newsletter</button>
+    </a>
+
+    <a href="{% url 'main_app:my_newsletters' %}">
+        <button>My Newsletters</button>
+    </a>
+    {% endif %}
+
+
+        <!-- EDITOR DASHBOARD -->
+    {% if request.user.groups.all.0.name == "Editor" %}
+    <hr>
+    <h3>Editor Dashboard</h3>
+
+    <a href="{% url 'main_app:manage_articles' %}">
+        <button>Manage Articles</button>
+    </a>
+
+    <a href="{% url 'main_app:newsletter_catalogue' %}">
+        <button>Manage Newsletters</button>
+    </a>
+
+    <a href="{% url 'main_app:create_publisher' %}">
+        <button>Create Publisher</button>
+    </a>
+    {% endif %}
+
+</body>
+</html>
