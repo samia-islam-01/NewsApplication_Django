@@ -1,43 +1,43 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Edit Newsletter</title>
-</head>
-<body>
-
-<h2>Edit Newsletter</h2>
-
-<form method="POST">
-    {% csrf_token %}
-
-    <label>Title:</label><br>
-    <input type="text" name="title" value="{{ newsletter.title }}" required><br><br>
-
-    <label>Description:</label><br>
-    <textarea name="description" required>{{ newsletter.description }}</textarea><br><br>
-
-    <label>Select Articles:</label><br>
-
-    {% for article in articles %}
-        <input type="checkbox" name="articles" value="{{ article.id }}"
-            {% if article in newsletter.articles.all %}checked{% endif %}>
-        {{ article.title }}<br>
-    {% endfor %}
-
-    <br>
-
-    <button type="submit">Save Changes</button>
-</form>
+{% extends "base.html" %}
+{% block title %}Edit Newsletter — NewsApp{% endblock %}
+{% block content %}
+<h2 class="fw-bold mb-4">Edit Newsletter</h2>
 
 {% if error %}
-    <p style="color:red;">{{ error }}</p>
+<div class="alert alert-danger">{{ error }}</div>
 {% endif %}
 
-<br>
+<form method="POST" class="row g-3">
+  {% csrf_token %}
 
-<a href="{% url 'main_app:newsletter_catalogue' %}">
-    <button>Back</button>
-</a>
+  <div class="col-12">
+    <label for="title" class="form-label">Title</label>
+    <input type="text" class="form-control" id="title" name="title" value="{{ newsletter.title }}" required>
+  </div>
 
-</body>
-</html>
+  <div class="col-12">
+    <label for="description" class="form-label">Description</label>
+    <textarea class="form-control" id="description" name="description" required>{{ newsletter.description }}</textarea>
+  </div>
+
+  <div class="col-12">
+    <label class="form-label">Select Articles</label>
+    <div class="row g-2">
+      {% for article in articles %}
+      <div class="col-md-6">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="articles" value="{{ article.id }}"
+            id="article_{{ article.id }}" {% if article in newsletter.articles.all %}checked{% endif %}>
+          <label class="form-check-label" for="article_{{ article.id }}">{{ article.title }}</label>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="{% url 'main_app:newsletter_catalogue' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+  </div>
+</form>
+{% endblock %}
