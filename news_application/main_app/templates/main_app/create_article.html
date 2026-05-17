@@ -1,79 +1,111 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Article</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Create Article — NewsApp{% endblock %}
+{% block content %}
+<h2 class="fw-bold mb-4">Create Article</h2>
 
-<h1>Create Article</h1>
+<form method="POST" class="row g-3">
+  {% csrf_token %}
 
-<form method="POST">
+  <div class="col-12">
+    <label for="title" class="form-label">Title</label>
+    <input type="text" class="form-control" id="title" name="title"
+           placeholder="Article Title" required>
+  </div>
 
-    {% csrf_token %}
+  <div class="col-12">
+    <label for="content" class="form-label">Content</label>
+    <textarea class="form-control" id="content" name="content"
+              rows="10" placeholder="Article Content" required></textarea>
+  </div>
 
-    <input type="text"
-           name="title"
-           placeholder="Article Title"
-           required>
+  {% if publishers %}
+  <div class="col-12">
+    <h5>Publishing Type</h5>
 
-    <br><br>
+    <div class="form-check">
+      <input class="form-check-input" type="radio"
+             name="publish_mode"
+             id="mode_independent"
+             value="independent"
+             checked>
 
-    <textarea name="content"
-              placeholder="Article Content"
-              rows="10"
-              cols="50"
-              required></textarea>
+      <label class="form-check-label"
+             for="mode_independent">
+             Publish Independently
+      </label>
+    </div>
 
-    <br><br>
+    <div class="form-check">
+      <input class="form-check-input" type="radio"
+             name="publish_mode"
+             id="mode_publisher"
+             value="publisher">
 
-    {% if publishers %}
+      <label class="form-check-label"
+             for="mode_publisher">
+             Publish Under Publisher
+      </label>
+    </div>
 
-        <h3>Publishing Type</h3>
+    <!-- Hidden by default -->
+    <div class="mt-2" id="publisher-select-container" style="display:none;">
+      <label class="form-label">Choose Publisher</label>
 
-        <input type="radio"
-               name="publish_mode"
-               value="independent"
-               checked>
+      <select class="form-select" name="publisher">
+        {% for publisher in publishers %}
+        <option value="{{ publisher.id }}">
+          {{ publisher.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  {% endif %}
 
-        Publish Independently
-
-        <br>
-
-        <input type="radio"
-               name="publish_mode"
-               value="publisher">
-
-        Publish Under Publisher
-
-        <br><br>
-
-        <select name="publisher">
-
-            {% for publisher in publishers %}
-
-                <option value="{{ publisher.id }}">
-                    {{ publisher.name }}
-                </option>
-
-            {% endfor %}
-
-        </select>
-
-    {% endif %}
-
-    <br><br>
-
-    <button type="submit">
-        Create Article
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">
+      Create Article
     </button>
 
+    <a href="{% url 'authenticator:welcome' %}"
+       class="btn btn-outline-secondary ms-2">
+       Cancel
+    </a>
+  </div>
 </form>
 
-<br>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
-<a href="{% url 'authenticator:welcome' %}">
-    <button>🏠 Back to Home</button>
-</a>
+    const independent =
+        document.getElementById("mode_independent");
 
-</body>
-</html>
+    const publisher =
+        document.getElementById("mode_publisher");
+
+    const dropdown =
+        document.getElementById("publisher-select-container");
+
+    function togglePublisherDropdown() {
+        if (publisher.checked) {
+            dropdown.style.display = "block";
+        } else {
+            dropdown.style.display = "none";
+        }
+    }
+
+    independent.addEventListener(
+        "change",
+        togglePublisherDropdown
+    );
+
+    publisher.addEventListener(
+        "change",
+        togglePublisherDropdown
+    );
+
+    togglePublisherDropdown();
+});
+</script>
+
+{% endblock %}

@@ -1,51 +1,46 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Manage Articles</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Manage Articles — NewsApp{% endblock %}
+{% block content %}
+<h2 class="fw-bold mb-4">Manage Articles</h2>
 
-<h2>Manage Articles (Editor)</h2>
-
-<table border="1" cellpadding="10">
-    <tr>
+<div class="table-responsive">
+  <table class="table table-striped table-hover align-middle">
+    <thead class="table-dark">
+      <tr>
         <th>Title</th>
         <th>Author</th>
         <th>Approved</th>
         <th>Actions</th>
-    </tr>
-
-    {% for article in articles %}
-    <tr>
+      </tr>
+    </thead>
+    <tbody>
+      {% for article in articles %}
+      <tr>
         <td>{{ article.title }}</td>
         <td>
-        Published by:
-        {% if article.publisher %}
-            {{ article.publisher.name }}
-            <br>
-            Written by {{ article.author.username }}
-        {% else %}
+          {% if article.publisher %}
+            {{ article.publisher.name }} / {{ article.author.username }}
+          {% else %}
             {{ article.author.username }}
-        {% endif %}
+          {% endif %}
         </td>
-        <td>{{ article.approved }}</td>
-
         <td>
-            <a href="{% url 'main_app:edit_article' article.id %}">Edit</a> |
-            <a href="{% url 'main_app:delete_article' article.id %}">Delete</a> |
-            <a href="{% url 'main_app:approve_article' article.id %}">
-                {% if article.approved %}Unapprove{% else %}Approve{% endif %}
-            </a>
+          {% if article.approved %}
+            <span class="badge bg-success">Approved</span>
+          {% else %}
+            <span class="badge bg-secondary">Pending</span>
+          {% endif %}
         </td>
-    </tr>
-    {% endfor %}
-</table>
-
-<br>
-    <!-- Navigation -->
-    <a href="{% url 'authenticator:welcome' %}">
-        <button>🏠 Back to Home</button>
-    </a>
-
-</body>
-</html>
+        <td>
+          <a href="{% url 'main_app:edit_article' article.id %}" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+          <a href="{% url 'main_app:delete_article' article.id %}" class="btn btn-sm btn-outline-danger me-1">Delete</a>
+          <a href="{% url 'main_app:approve_article' article.id %}" class="btn btn-sm btn-outline-secondary">
+            {% if article.approved %}Unapprove{% else %}Approve{% endif %}
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

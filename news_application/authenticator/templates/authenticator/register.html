@@ -1,55 +1,52 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register</title>
-</head>
-<body>
-    <h2>Register An Account</h2>
+{% extends "base_auth.html" %}
+{% block title %}Register — NewsApp{% endblock %}
+{% block content %}
+<h4 class="card-title mb-4 text-center">Create an Account</h4>
 
-    <!-- This form sends registration info to the backend -->
-    <form method="POST" action="{% url 'authenticator:register' %}">
-        {% csrf_token %}  <!-- Protects against cross-site attacks -->
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
 
-        <!-- Username input -->
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        <br>
+<form method="POST" action="{% url 'authenticator:register' %}">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label for="username" class="form-label">Username</label>
+    <input type="text" class="form-control" id="username" name="username" required>
+  </div>
+  <div class="mb-3">
+    <label for="email" class="form-label">Email</label>
+    <input type="email" class="form-control" id="email" name="email" required>
+  </div>
+  <div class="mb-3">
+    <label for="password" class="form-label">Password</label>
+    <input type="password" class="form-control" id="password" name="password" required>
+  </div>
+  <div class="mb-3">
+    <label for="password_confirm" class="form-label">Confirm Password</label>
+    <input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Account Type</label>
+    <div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="role" id="role_reader" value="reader" required>
+        <label class="form-check-label" for="role_reader">Reader</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="role" id="role_journalist" value="journalist">
+        <label class="form-check-label" for="role_journalist">Journalist</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="role" id="role_editor" value="editor">
+        <label class="form-check-label" for="role_editor">Editor</label>
+      </div>
+    </div>
+  </div>
+  <div class="d-grid">
+    <button type="submit" class="btn btn-primary">Register</button>
+  </div>
+</form>
 
-        <!-- Email input -->
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <br>
-
-        <!-- Password input -->
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br>
-
-        <!-- Password confirmation -->
-        <label for="password_confirm">Re-enter password</label>
-        <input type="password" id="password_confirm" name="password_confirm" required>
-        <br>
-
-        <!-- Role choice -->
-        <label>Account Type:</label><br>
-        <input type="radio" name="role" value="reader" required> Reader
-        <input type="radio" name="role" value="journalist"> Journalist
-        <input type="radio" name="role" value="editor"> Editor
-        <br>
-
-        <!-- Error message display -->
-        {% if error %}
-            <p style="color: red;">{{ error }}</p>
-        {% endif %}
-
-        <!-- Submit button -->
-        <button type="submit">Register</button>
-        <br>
-    </form>
-
-
-
-    <!-- Link to login page -->
-    <p>Already have an account? <a href="{% url 'authenticator:login' %}">Login here</a></p>
-</body>
-</html>
+<hr>
+<p class="text-center mb-0">Already have an account? <a href="{% url 'authenticator:login' %}">Login here</a></p>
+{% endblock %}

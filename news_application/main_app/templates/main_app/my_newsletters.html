@@ -1,63 +1,41 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My Newsletters</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}My Newsletters — NewsApp{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="fw-bold mb-0">My Newsletters</h2>
+  <a href="{% url 'main_app:create_newsletter' %}" class="btn btn-primary">+ Create New Newsletter</a>
+</div>
 
-    <h1>My Newsletters</h1>
-
-    <!-- Create new product -->
-    <div style="margin-bottom: 20px;">
-        <a href="{% url 'main_app:create_newsletter' %}">
-            <button>➕ Create New Newsletter</button>
-        </a>
-
-    </div>
-
-    {% if newsletters %}
-        <table border="1" cellpadding="10">
-            <tr>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Time Created At</th>
-                <th>Articles</th>
-            </tr>
-
-            {% for newsletter in newsletters %}
-                <tr>
-                    <td>{{ newsletter.title }}</td>
-
-                    <td>{{ newsletter.author }}</td>
-
-                    <td>{{ newsletter.created_at }}</td>
-
-                    <td>
-                        {% for article in newsletter.articles.all %}
-
-                            <a href="{% url 'main_app:view_article' article.id %}">
-                                {{ article.title }}
-                            </a>
-
-                            <br>
-
-                        {% empty %}
-                            No articles
-                        {% endfor %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>You have no newsletters yet.</p>
-    {% endif %}
-
-    <br>
-
-    <!-- Navigation -->
-    <a href="{% url 'authenticator:welcome' %}">
-        <button>🏠 Back to Home</button>
-    </a>
-
-</body>
-</html>
+{% if newsletters %}
+<div class="table-responsive">
+  <table class="table table-striped table-hover align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Created</th>
+        <th>Articles</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for newsletter in newsletters %}
+      <tr>
+        <td>{{ newsletter.title }}</td>
+        <td>{{ newsletter.author }}</td>
+        <td>{{ newsletter.created_at }}</td>
+        <td>
+          {% for article in newsletter.articles.all %}
+            <a href="{% url 'main_app:view_article' article.id %}" class="badge bg-secondary text-decoration-none me-1">{{ article.title }}</a>
+          {% empty %}
+            <span class="text-muted">No articles</span>
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-muted">You have no newsletters yet.</p>
+{% endif %}
+{% endblock %}

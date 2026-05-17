@@ -1,51 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ newsletter.title }}</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}{{ newsletter.title }} — NewsApp{% endblock %}
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'main_app:newsletter_catalogue' %}" class="btn btn-outline-secondary btn-sm">← Newsletters</a>
+</div>
 
-<h1>{{ newsletter.title }}</h1>
+<h1 class="fw-bold">{{ newsletter.title }}</h1>
+
+<p class="text-muted">
+  {% if newsletter.publisher %}
+    Published by <strong>{{ newsletter.publisher.name }}</strong> · Written by {{ newsletter.author.username }}
+  {% else %}
+    By {{ newsletter.author.username }}
+  {% endif %}
+</p>
 
 <p>{{ newsletter.description }}</p>
 
-<p>
-    Published by:
-
-    {% if newsletter.publisher %}
-        {{ newsletter.publisher.name }}
-        <br>
-        Written by {{ newsletter.author.username }}
-    {% else %}
-        {{ newsletter.author.username }}
-    {% endif %}
-</p>
-
 <hr>
 
-<h2>Articles</h2>
+<h4 class="mt-4 mb-3">Articles</h4>
 
 {% for article in newsletter.articles.all %}
-
-    <p>
-        <a href="{% url 'main_app:view_article' article.id %}">
-            {{ article.title }}
-        </a>
-    </p>
-
+<div class="card mb-2 shadow-sm">
+  <div class="card-body py-2">
+    <a href="{% url 'main_app:view_article' article.id %}" class="text-decoration-none">{{ article.title }}</a>
+  </div>
+</div>
 {% empty %}
-
-    <p>No articles.</p>
-
+<p class="text-muted">No articles in this newsletter.</p>
 {% endfor %}
-
-    <!-- Navigation -->
-    <a href="{% url 'main_app:newsletter_catalogue' %}">
-        <button>📄 Newsletters</button>
-    </a>
-
-    <a href="{% url 'authenticator:welcome' %}">
-        <button>🏠 Back to Home</button>
-    </a>
-</body>
-</html>
+{% endblock %}

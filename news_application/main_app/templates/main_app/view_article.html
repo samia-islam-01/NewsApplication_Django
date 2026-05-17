@@ -1,43 +1,24 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ article.title }}</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}{{ article.title }} — NewsApp{% endblock %}
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'main_app:article_catalogue' %}" class="btn btn-outline-secondary btn-sm">← Articles</a>
+</div>
 
-<h1>{{ article.title }}</h1>
+<h1 class="fw-bold">{{ article.title }}</h1>
 
-<p>
-    Published by:
-
-    {% if article.publisher %}
-        {{ article.publisher.name }}
-        <br>
-        Written by {{ article.author.username }}
-    {% else %}
-        {{ article.author.username }}
-    {% endif %}
-</p>
-
-<p>
-    Published:
-    {{ article.created_at }}
+<p class="text-muted">
+  {% if article.publisher %}
+    Published by <strong>{{ article.publisher.name }}</strong> · Written by {{ article.author.username }}
+  {% else %}
+    By {{ article.author.username }}
+  {% endif %}
+  · {{ article.created_at }}
 </p>
 
 <hr>
 
-<p>{{ article.content }}</p>
-
-<br>
-
-    <!-- Navigation -->
-    <a href="{% url 'main_app:article_catalogue' %}">
-        <button>📄 Articles</button>
-    </a>
-
-    <a href="{% url 'authenticator:welcome' %}">
-        <button>🏠 Back to Home</button>
-    </a>
-
-</body>
-</html>
+<div class="mt-4">
+  {{ article.content }}
+</div>
+{% endblock %}

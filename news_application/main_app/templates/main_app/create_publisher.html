@@ -1,79 +1,48 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Publisher</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Create Publisher — NewsApp{% endblock %}
+{% block content %}
+<h2 class="fw-bold mb-4">Create Publisher</h2>
 
-<h1>Create Publisher</h1>
+<form method="POST" class="row g-3">
+  {% csrf_token %}
 
-<form method="POST">
+  <div class="col-12">
+    <label for="name" class="form-label">Publisher Name</label>
+    <input type="text" class="form-control" id="name" name="name" placeholder="Publisher Name" required>
+  </div>
 
-    {% csrf_token %}
+  <div class="col-12">
+    <label for="description" class="form-label">Description</label>
+    <textarea class="form-control" id="description" name="description" placeholder="Description"></textarea>
+  </div>
 
-    <input type="text"
-           name="name"
-           placeholder="Publisher Name"
-           required>
-
-    <br><br>
-
-    <textarea name="description"
-              placeholder="Description"></textarea>
-
-    <br><br>
-
-    <h3>Select Journalists</h3>
-
+  <div class="col-md-6">
+    <h5>Select Journalists</h5>
     {% for journalist in journalists %}
-
-        <input type="checkbox"
-               name="journalists"
-               value="{{ journalist.id }}">
-
-        {{ journalist.username }}
-
-        <br>
-
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="journalists" value="{{ journalist.id }}" id="journalist_{{ journalist.id }}">
+      <label class="form-check-label" for="journalist_{{ journalist.id }}">{{ journalist.username }}</label>
+    </div>
     {% empty %}
-
-        <p>No journalists available</p>
-
+    <p class="text-muted">No journalists available</p>
     {% endfor %}
+  </div>
 
-    <br>
-
-    <h3>Select Editors</h3>
-
+  <div class="col-md-6">
+    <h5>Select Editors</h5>
     {% for editor in editors %}
-
-        <input type="checkbox"
-               name="editors"
-               value="{{ editor.id }}">
-
-        {{ editor.username }}
-
-        <br>
-
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="editors" value="{{ editor.id }}" id="editor_{{ editor.id }}">
+      <label class="form-check-label" for="editor_{{ editor.id }}">{{ editor.username }}</label>
+    </div>
     {% empty %}
-
-        <p>No editors available</p>
-
+    <p class="text-muted">No editors available</p>
     {% endfor %}
+  </div>
 
-    <br>
-
-    <button type="submit">
-        Create Publisher
-    </button>
-
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">Create Publisher</button>
+    <a href="{% url 'authenticator:welcome' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+  </div>
 </form>
-
-<br>
-
-<a href="{% url 'authenticator:welcome' %}">
-    <button>🏠 Back to Home</button>
-</a>
-
-</body>
-</html>
+{% endblock %}

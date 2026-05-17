@@ -1,44 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
-    <h2>Login</h2>
+{% extends "base_auth.html" %}
+{% block title %}Login — NewsApp{% endblock %}
+{% block content %}
+<h4 class="card-title mb-4 text-center">Sign In</h4>
 
-    <!-- This form sends login info to the backend using POST -->
-    <form method="POST" action="{% url 'authenticator:login' %}">
-        {% csrf_token %}  <!-- Security token to prevent hacking -->
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
 
-        <!-- Username input -->
-        <label for="username">Username:</label>
-        <input type="text" name="username" required><br><br>
+<form method="POST" action="{% url 'authenticator:login' %}">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label for="username" class="form-label">Username</label>
+    <input type="text" class="form-control" id="username" name="username" required>
+  </div>
+  <div class="mb-3">
+    <label for="password" class="form-label">Password</label>
+    <input type="password" class="form-control" id="password" name="password" required>
+  </div>
+  <div class="d-grid mb-3">
+    <button type="submit" class="btn btn-primary">Login</button>
+  </div>
+</form>
 
-        <!-- Password input -->
-        <label for="password">Password:</label>
-        <input type="password" name="password" required><br><br>
+<div class="text-center">
+  <a href="{% url 'authenticator:request_password_reset' %}" class="text-muted small">Forgot your password?</a>
+</div>
 
-        <!-- Submit button -->
-        <button type="submit">Login</button>
-    </form>
-
-    <!-- If there's an error (like wrong password), show it -->
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
-
-    <!-- Link to reset password page -->
-    <p style="margin-top: 10px;">
-        <a href="{% url 'authenticator:request_password_reset' %}">Forgot your password?</a>
-    </p>
-
-    <!-- Link to registration page -->
-    <div style="margin-top: 20px;">
-        <p>Don't have an account?
-            <a href="{% url 'authenticator:register' %}">
-                <button>Register here</button>
-            </a>
-        </p>
-    </div>
-</body>
-</html>
+<hr>
+<p class="text-center mb-0">Don't have an account? <a href="{% url 'authenticator:register' %}">Register here</a></p>
+{% endblock %}

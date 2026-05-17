@@ -1,133 +1,77 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My Subscriptions</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}My Subscriptions — NewsApp{% endblock %}
+{% block content %}
+<h2 class="fw-bold mb-4">My Subscriptions</h2>
 
-<h1>My Subscriptions</h1>
-
-<hr>
-
-<h2>Journalists</h2>
+<h4 class="mb-3">Journalists</h4>
 
 {% for journalist in journalists %}
-
-    <div style="border:1px solid black; padding:15px; margin-bottom:20px;">
-
-        <h3>{{ journalist.username }}</h3>
-
-        <a href="{% url 'main_app:unsubscribe_journalist' journalist.id %}">
-            Unsubscribe
-        </a>
-
-        <h4>Articles</h4>
-
-        {% for article in journalist.article_set.all %}
-
-            {% if article.approved %}
-
-                <p>
-                    <a href="{% url 'main_app:view_article' article.id %}">
-                        {{ article.title }}
-                    </a>
-                </p>
-
-            {% endif %}
-
-        {% empty %}
-
-            <p>No articles yet.</p>
-
-        {% endfor %}
-
-        <h4>Newsletters</h4>
-
-        {% for newsletter in journalist.newsletter_set.all %}
-
-            <p>
-                <a href="{% url 'main_app:view_newsletter' newsletter.id %}">
-                    {{ newsletter.title }}
-                </a>
-            </p>
-
-        {% empty %}
-
-            <p>No newsletters yet.</p>
-
-        {% endfor %}
-
+<div class="card mb-3 shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">{{ journalist.username }}</h5>
+      <a href="{% url 'main_app:unsubscribe_journalist' journalist.id %}" class="btn btn-outline-danger btn-sm">Unsubscribe</a>
     </div>
-
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Articles</h6>
+        {% for article in journalist.article_set.all %}
+          {% if article.approved %}
+            <p class="mb-1"><a href="{% url 'main_app:view_article' article.id %}">{{ article.title }}</a></p>
+          {% endif %}
+        {% empty %}
+          <p class="text-muted">No articles yet.</p>
+        {% endfor %}
+      </div>
+      <div class="col-md-6">
+        <h6>Newsletters</h6>
+        {% for newsletter in journalist.newsletter_set.all %}
+          <p class="mb-1"><a href="{% url 'main_app:view_newsletter' newsletter.id %}">{{ newsletter.title }}</a></p>
+        {% empty %}
+          <p class="text-muted">No newsletters yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
 {% empty %}
-
-    <p>No journalist subscriptions.</p>
-
+<p class="text-muted">No journalist subscriptions.</p>
 {% endfor %}
 
-<hr>
+<hr class="my-4">
 
-<h2>Publishers</h2>
+<h4 class="mb-3">Publishers</h4>
 
 {% for publisher in publishers %}
-
-    <div style="border:1px solid black; padding:15px; margin-bottom:20px;">
-
-        <h3>{{ publisher.name }}</h3>
-
-        <a href="{% url 'main_app:unsubscribe_publisher' publisher.id %}">
-            Unsubscribe
-        </a>
-
-        <h4>Articles</h4>
-
-        {% for article in publisher.article_set.all %}
-
-            {% if article.approved %}
-
-                <p>
-                    <a href="{% url 'main_app:view_article' article.id %}">
-                        {{ article.title }}
-                    </a>
-                </p>
-
-            {% endif %}
-
-        {% empty %}
-
-            <p>No articles yet.</p>
-
-        {% endfor %}
-
-        <h4>Newsletters</h4>
-
-        {% for newsletter in publisher.newsletter_set.all %}
-
-            <p>
-                <a href="{% url 'main_app:view_newsletter' newsletter.id %}">
-                    {{ newsletter.title }}
-                </a>
-            </p>
-
-        {% empty %}
-
-            <p>No newsletters yet.</p>
-
-        {% endfor %}
-
+<div class="card mb-3 shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">{{ publisher.name }}</h5>
+      <a href="{% url 'main_app:unsubscribe_publisher' publisher.id %}" class="btn btn-outline-danger btn-sm">Unsubscribe</a>
     </div>
-
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Articles</h6>
+        {% for article in publisher.article_set.all %}
+          {% if article.approved %}
+            <p class="mb-1"><a href="{% url 'main_app:view_article' article.id %}">{{ article.title }}</a></p>
+          {% endif %}
+        {% empty %}
+          <p class="text-muted">No articles yet.</p>
+        {% endfor %}
+      </div>
+      <div class="col-md-6">
+        <h6>Newsletters</h6>
+        {% for newsletter in publisher.newsletter_set.all %}
+          <p class="mb-1"><a href="{% url 'main_app:view_newsletter' newsletter.id %}">{{ newsletter.title }}</a></p>
+        {% empty %}
+          <p class="text-muted">No newsletters yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
 {% empty %}
-
-    <p>No publisher subscriptions.</p>
-
+<p class="text-muted">No publisher subscriptions.</p>
 {% endfor %}
-
-<br>
-
-<a href="{% url 'authenticator:welcome' %}">
-    <button>🏠 Home</button>
-</a>
-
-</body>
-</html>
+{% endblock %}
