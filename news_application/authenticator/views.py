@@ -17,41 +17,33 @@ from django.contrib.auth.hashers import make_password  # To hash passwords befor
 
 User = get_user_model()
 
-# This function handles user login
+
 def login_user(request):
-    # When the login form is submitted
+    """Handles user login"""
     if request.method == 'POST':
-        # Get username and password from the form
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        # Check if the username and password match a user in the database
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            login(request, user)  # Log the user in and start their session
+            login(request, user)
 
             request.session.set_expiry(60 * 60 * 24 * 30)
 
-            # Save some user info in the session (optional, but useful)
             request.session['user_id'] = user.id
             request.session['username'] = user.username
 
-            # Redirect user to the welcome page after successful login
             return HttpResponseRedirect(reverse('authenticator:welcome'))
         else:
             # If login failed, reload login page with an error message
             return render(request, 'authenticator/login.html', {'error': 'Invalid credentials'})
 
-    # If the user just opened the login page, show the login form
     return render(request, 'authenticator/login.html')
 
 
-# This function handles user registration (signing up)
-from django.contrib.auth import get_user_model
-User = get_user_model()
-
 def register_user(request):
+    """Handles user registration"""
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -95,30 +87,30 @@ def register_user(request):
     return render(request, 'authenticator/register.html')
 
 
-# Helper function to change a user's password securely
 def change_user_password(username, new_password):
-    user = User.objects.get(username=username)  # Find user by username
+    """Handles user password re-creation"""
+    user = User.objects.get(username=username)
 
-    user.set_password(new_password)  # Set the new password (hashed automatically)
+    user.set_password(new_password)
 
-    user.save()  # Save changes to the database
+    user.save()
 
 
-# Logs the user out and redirects to login page
 def logout_user(request):
+    """Logs the user out and redirects to login page"""
     if request.user is not None:
         logout(request)  # Log out the current user
         return HttpResponseRedirect(reverse('authenticator:login'))
 
 
-# Only logged-in users can see the welcome page
 @login_required(login_url=reverse_lazy('authenticator:login'))
 def welcome(request):
-    return render(request, 'authenticator/welcome.html')  # Show the welcome page
+    """Only logged-in users can see the welcome page"""
+    return render(request, 'authenticator/welcome.html')
 
 
-# # Creates the email object to send for password reset
 def build_email(user, reset_url):
+    """Builds email for password reset"""
     subject = "Password Reset"
     user_email = user.email
     domain_email = "example@domain.com"  # The "from" email address for the email
@@ -126,12 +118,11 @@ def build_email(user, reset_url):
 
     email = EmailMessage(subject, body, domain_email, [user_email])
     return email
-#
-#
-# # Creates a secure reset URL with a token that expires in 5 minutes
+
+
 def generate_reset_url(user):
+    """Creates a secure generate reset url that expires in 5 minutes"""
     domain = "http://127.0.0.1:8000/"
-    # app_name = "authenticator"  # Make sure this matches your app name in urls.py
     url = f"{domain}/reset/"
 
     token = secrets.token_urlsafe(16)  # Generate a random secure token
@@ -140,29 +131,28 @@ def generate_reset_url(user):
 
     hashed_token = sha1(token.encode()).hexdigest()  # Hash the token to store securely
 
-    # Save the hashed token and expiry date to the database
     ResetToken.objects.create(
         user=user,
         token=hashed_token,
         expiry_date=expiry_date
     )
 
-    url += f"{token}/"  # Add the raw token (not hashed) to the URL for verification later
+    url += f"{token}/"
     print(url)
     print(token)
     print(hashed_token)
     return url
 
 
-# Handles sending the password reset email after user submits their email
 def send_password_reset(request):
+    """Handles sending the password reset email after user submits their email"""
     if request.method == 'POST':
         user_email = request.POST.get('email')
         try:
-            user = User.objects.get(email=user_email)  # Find user by email
+            user = User.objects.get(email=user_email)
             reset_url = generate_reset_url(user)  # Generate reset link with token
             email = build_email(user, reset_url)  # Create the email message
-            email.send()  # Send the email
+            email.send()
 
             # Show a confirmation page that email was sent
             return render(request, 'authenticator/reset_email_sent.html', {
@@ -179,8 +169,8 @@ def send_password_reset(request):
     return render(request, 'authenticator/request_password_reset.html')
 
 
-# This view is called when user clicks the reset link in their email
 def reset_user_password(request, token):
+    """Handles resetting user password when the user clicks the link in their email"""
     hashed_token = sha1(token.encode()).hexdigest()  # Hash the token from URL
 
     try:
@@ -191,11 +181,9 @@ def reset_user_password(request, token):
             user_token.delete()  # Delete expired token
             return render(request, 'authenticator/password_reset_expired.html')  # Show expired token message
 
-        # Save user ID and token in session to verify next step
         request.session['user_id'] = user_token.user.id
         request.session['reset_token'] = token
 
-        # Show the password reset form
         return render(request, 'authenticator/password_reset.html', {'token': token})
 
     except ResetToken.DoesNotExist:
@@ -203,8 +191,8 @@ def reset_user_password(request, token):
         return render(request, 'authenticator/password_reset_invalid.html')
 
 
-# Handles the password reset form submission (when user enters new password)
 def reset_password(request):
+    """Handles the password reset form submission (when user enters new password)"""
     if request.method == 'POST':
         user_id = request.session.get('user_id')
         token = request.session.get('reset_token')
@@ -228,13 +216,12 @@ def reset_password(request):
             })
 
         try:
-            user = User.objects.get(id=user_id)  # Find user by user_id
+            user = User.objects.get(id=user_id)
             hashed_token = sha1(token.encode()).hexdigest()
             reset_token = ResetToken.objects.get(token=hashed_token)
 
-            # Check token expiry again (just to be sure)
+            # Check token expiry again
             if reset_token.expiry_date.replace(tzinfo=None) < datetime.now():
-                print("C")
                 reset_token.delete()
                 return render(request, 'password_reset_expired.html')
 
@@ -246,12 +233,9 @@ def reset_password(request):
             reset_token.delete()
             request.session.flush()
 
-            print("D")
-            # Redirect user to login page after successful password reset
             return HttpResponseRedirect(reverse('authenticator:login'))
 
         except (User.DoesNotExist, ResetToken.DoesNotExist):
             return render(request, 'password_reset_invalid.html')
 
-    # If the page was accessed with GET or any other method, redirect to login page
     return HttpResponseRedirect(reverse('authenticator:login'))

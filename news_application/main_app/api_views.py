@@ -12,7 +12,7 @@ from .serializers import ArticleSerializer
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def api_articles(request):
-
+    """Displays articles to an approved user"""
     articles = Article.objects.filter(approved=True)
 
     serializer = ArticleSerializer(
@@ -26,7 +26,7 @@ def api_articles(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def api_single_article(request, article_id):
-
+    """Displays a single article to an approved user"""
     article = get_object_or_404(
         Article,
         id=article_id,
@@ -41,7 +41,7 @@ def api_single_article(request, article_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def api_create_article(request):
-
+    """Allows a journalist to create an article"""
     if request.user.role != 'journalist':
         return Response(
             {'error': 'Only journalists can create articles'},
@@ -71,7 +71,7 @@ def api_create_article(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def api_update_article(request, article_id):
-
+    """Allows a journalist or editor to edit an article"""
     article = get_object_or_404(Article, id=article_id)
 
     if request.user.role not in ['journalist', 'editor']:
@@ -107,7 +107,7 @@ def api_update_article(request, article_id):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def api_delete_article(request, article_id):
-
+    """Allows a journalist or editor to delete an article"""
     article = get_object_or_404(Article, id=article_id)
 
     if request.user.role not in ['journalist', 'editor']:
@@ -133,7 +133,7 @@ def api_delete_article(request, article_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def api_subscribed_articles(request):
-
+    """Displays a list of a reader's subscribed articles"""
     if request.user.role != 'reader':
         return Response(
             {'error': 'Only readers allowed'},
@@ -166,7 +166,7 @@ def api_subscribed_articles(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def api_approve_article(request, article_id):
-
+    """Allows an editor to approve an article"""
     if request.user.role != 'editor':
         return Response(
             {'error': 'Only editors can approve'},
@@ -185,7 +185,7 @@ def api_approve_article(request, article_id):
 
 @api_view(['POST'])
 def approved_article_log(request):
-
+    """Creates a log for an approved article to be used in an email to subscribed readers"""
     article_id = request.data.get('article_id')
     title = request.data.get('title')
 

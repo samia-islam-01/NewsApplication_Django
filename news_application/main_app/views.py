@@ -1,12 +1,12 @@
+import requests
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.sites import requests
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Article, Newsletter, Publisher, CustomUser
-
 
 # User Groups
 def is_journalist(user):
@@ -20,7 +20,7 @@ def is_editor(user):
 # ARTICLES
 @login_required
 def create_article(request):
-
+    """Allows a journalist to create an article"""
     if not is_journalist(request.user):
         return HttpResponse("Only Journalists can create articles")
 
@@ -66,6 +66,7 @@ def create_article(request):
 
 @login_required
 def my_articles(request):
+    """Allows a journalist to view their own articles"""
     if not is_journalist(request.user):
         return HttpResponse("Only Journalists can view their own articles")
 
@@ -79,6 +80,7 @@ def my_articles(request):
 
 @login_required
 def edit_article(request, article_id):
+    """Allows journalists and editors to edit articles"""
     article = get_object_or_404(Article, id=article_id)
 
     # Permissions
@@ -87,7 +89,7 @@ def edit_article(request, article_id):
             return HttpResponse("You can only edit your own articles")
 
     elif not is_editor(request.user):
-        return HttpResponse("Not authorized")
+        return HttpResponse("Not authorised")
 
     if request.method == 'POST':
         article.title = request.POST['title']
@@ -105,6 +107,7 @@ def edit_article(request, article_id):
 
 @login_required
 def delete_article(request, article_id):
+    """Allows journalists and editors to delete articles"""
     article = get_object_or_404(Article, id=article_id)
 
     if is_journalist(request.user):
@@ -112,13 +115,14 @@ def delete_article(request, article_id):
             return HttpResponse("You can only delete your own articles")
 
     elif not is_editor(request.user):
-        return HttpResponse("Not authorized")
+        return HttpResponse("Not authorised")
 
     article.delete()
     return redirect('main_app:manage_articles' if is_editor(request.user) else 'main_app:my_articles')
 
 
 def article_catalogue(request):
+    """Displays all articles"""
     query = request.GET.get('q')
 
     articles = Article.objects.filter(approved=True)
@@ -133,8 +137,9 @@ def article_catalogue(request):
 
 @login_required
 def manage_articles(request):
+    """Allows editors to manage articles"""
     if not is_editor(request.user):
-        return HttpResponse("Only editors can access this page")
+        return HttpResponse("Not authorised")
 
     articles = Article.objects.all().order_by('-created_at')
 
@@ -145,9 +150,9 @@ def manage_articles(request):
 
 @login_required
 def approve_article(request, article_id):
-    """For approval and unapproval of articles"""
+    """Allows editors to approve an article"""
     if not is_editor(request.user):
-        return HttpResponse("Only editors can approve articles")
+        return HttpResponse("Not authorised")
 
     article = get_object_or_404(
         Article,
@@ -164,14 +169,14 @@ def approve_article(request, article_id):
 
     subscribers = CustomUser.objects.none()
 
-    # subscribers to publisher
+    # Subscribers to publisher
     if article.publisher:
 
         publisher_subscribers = article.publisher.subscribers.all()
 
         subscribers = subscribers | publisher_subscribers
 
-    # subscribers to journalist
+    # Subscribers to journalist
     journalist_subscribers = article.author.journalist_subscribers.all()
 
     subscribers = (subscribers | journalist_subscribers).distinct()
@@ -223,7 +228,7 @@ Content:
 
 
 def view_article(request, article_id):
-
+    """ALlows users to view a specific article"""
     article = get_object_or_404(
         Article,
         id=article_id,
@@ -238,8 +243,9 @@ def view_article(request, article_id):
 # NEWSLETTERS
 @login_required
 def create_newsletter(request):
+    """Allows journalists to create a newsletter"""
     if not is_journalist(request.user):
-        return HttpResponse("Only journalists can create newsletters")
+        return HttpResponse("Not authorised")
 
     # Get articles this user can choose from
     user_articles = Article.objects.filter(author=request.user, approved=True)
@@ -248,7 +254,6 @@ def create_newsletter(request):
     user_publishers = Publisher.objects.filter(
         journalists=request.user
     )
-
 
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -292,6 +297,7 @@ def create_newsletter(request):
 
 @login_required
 def edit_newsletter(request, newsletter_id):
+    """Allows journalists and editors to edit a newsletter"""
     newsletter = get_object_or_404(Newsletter, id=newsletter_id)
 
     # Permissions
@@ -333,10 +339,11 @@ def edit_newsletter(request, newsletter_id):
 
 @login_required
 def delete_newsletter(request, newsletter_id):
+    """Allows journalists and editors to delete a newsletter"""
     newsletter = get_object_or_404(Newsletter, id=newsletter_id)
 
     if not (is_journalist(request.user) or is_editor(request.user)):
-        return HttpResponse("Not authorized")
+        return HttpResponse("Not authorised")
 
     if request.method == 'POST':
         newsletter.delete()
@@ -362,6 +369,7 @@ def newsletter_catalogue(request):
 
 @login_required
 def my_newsletters(request):
+    """Allows a journalist to view their own newsletters"""
     if not is_journalist(request.user):
         return HttpResponse("Only Journalists can view their own newsletters")
 
@@ -374,7 +382,7 @@ def my_newsletters(request):
 
 
 def view_newsletter(request, newsletter_id):
-
+    """Allows a user to view a newsletter"""
     newsletter = get_object_or_404(
         Newsletter,
         id=newsletter_id
@@ -385,87 +393,10 @@ def view_newsletter(request, newsletter_id):
     })
 
 
-# SUBSCRIPTIONS
-@login_required
-def subscribe_publisher(request, publisher_id):
-
-    if request.user.role != 'reader':
-        return HttpResponse("Only readers can subscribe")
-
-    publisher = get_object_or_404(Publisher, id=publisher_id)
-
-    request.user.subscriptions_to_publishers.add(publisher)
-
-    return redirect('main_app:publisher_list')
-
-
-@login_required
-def unsubscribe_publisher(request, publisher_id):
-
-    if request.user.role != 'reader':
-        return HttpResponse("Only readers can unsubscribe")
-
-    publisher = get_object_or_404(Publisher, id=publisher_id)
-
-    request.user.subscriptions_to_publishers.remove(publisher)
-
-    return redirect('main_app:publisher_list')
-
-
-def publisher_list(request):
-
-    publishers = Publisher.objects.all()
-
-    return render(request, 'main_app/publisher_list.html', {
-        'publishers': publishers
-    })
-
-
-def journalist_list(request):
-
-    journalists = CustomUser.objects.filter(role='journalist')
-
-    return render(request, 'main_app/journalist_list.html', {
-        'journalists': journalists
-    })
-
-
-@login_required
-def subscribe_journalist(request, journalist_id):
-
-    if request.user.role != 'reader':
-        return HttpResponse("Only readers can subscribe")
-
-    journalist = get_object_or_404(
-        CustomUser,
-        id=journalist_id,
-        role='journalist'
-    )
-
-    request.user.subscriptions_to_journalists.add(journalist)
-
-    return redirect('main_app:journalist_list')
-
-
-@login_required
-def unsubscribe_journalist(request, journalist_id):
-
-    if request.user.role != 'reader':
-        return HttpResponse("Only readers can unsubscribe")
-
-    journalist = get_object_or_404(
-        CustomUser,
-        id=journalist_id,
-        role='journalist'
-    )
-
-    request.user.subscriptions_to_journalists.remove(journalist)
-
-    return redirect('main_app:journalist_list')
-
-
+# READER SUBSCRIPTIONS
 @login_required
 def my_subscriptions(request):
+    """Displays a list of a reader's subscriptions to them"""
     if request.user.role != 'reader':
         return HttpResponse("Only readers can view subscriptions")
 
@@ -495,7 +426,7 @@ def my_subscriptions(request):
 # PUBLISHER
 @login_required
 def create_publisher(request):
-
+    """Allows an editor to create a publisher"""
     if not is_editor(request.user):
         return HttpResponse("Only editors can create publishers")
 
@@ -524,3 +455,81 @@ def create_publisher(request):
         'journalists': journalists,
         'editors': editors
     })
+
+
+def publisher_list(request):
+    """Displays a list of all publishers"""
+    publishers = Publisher.objects.all()
+
+    return render(request, 'main_app/publisher_list.html', {
+        'publishers': publishers
+    })
+
+@login_required
+def subscribe_publisher(request, publisher_id):
+    """Allows a reader to subscribe to a publisher"""
+    if request.user.role != 'reader':
+        return HttpResponse("Only readers can subscribe")
+
+    publisher = get_object_or_404(Publisher, id=publisher_id)
+
+    request.user.subscriptions_to_publishers.add(publisher)
+
+    return redirect('main_app:publisher_list')
+
+
+@login_required
+def unsubscribe_publisher(request, publisher_id):
+    """Allows a reader to unsubscribe to a publisher"""
+    if request.user.role != 'reader':
+        return HttpResponse("Only readers can unsubscribe")
+
+    publisher = get_object_or_404(Publisher, id=publisher_id)
+
+    request.user.subscriptions_to_publishers.remove(publisher)
+
+    return redirect('main_app:publisher_list')
+
+
+# JOURNALIST
+def journalist_list(request):
+    """Displays a list of all journalists"""
+    journalists = CustomUser.objects.filter(role='journalist')
+
+    return render(request, 'main_app/journalist_list.html', {
+        'journalists': journalists
+    })
+
+
+@login_required
+def subscribe_journalist(request, journalist_id):
+    """Allows a reader to subscribe to a journalist"""
+    if request.user.role != 'reader':
+        return HttpResponse("Only readers can subscribe")
+
+    journalist = get_object_or_404(
+        CustomUser,
+        id=journalist_id,
+        role='journalist'
+    )
+
+    request.user.subscriptions_to_journalists.add(journalist)
+
+    return redirect('main_app:journalist_list')
+
+
+@login_required
+def unsubscribe_journalist(request, journalist_id):
+    """Allows a reader to unsubscribe to a journalist"""
+    if request.user.role != 'reader':
+        return HttpResponse("Only readers can unsubscribe")
+
+    journalist = get_object_or_404(
+        CustomUser,
+        id=journalist_id,
+        role='journalist'
+    )
+
+    request.user.subscriptions_to_journalists.remove(journalist)
+
+    return redirect('main_app:journalist_list')

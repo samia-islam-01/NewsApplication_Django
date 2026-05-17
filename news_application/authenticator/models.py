@@ -14,8 +14,3 @@ class ResetToken(models.Model):
     def __str__(self):
         # Show a short summary for easier debugging
         return f"ResetToken(user={self.user.username}, token={self.token[:10]}..., used={self.used})"
-
-
-
-# class Publisher(models.Model):
-#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

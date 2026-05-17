@@ -9,7 +9,7 @@ from .models import (
 
 
 class UserSerializer(serializers.ModelSerializer):
-
+    """User serializer"""
     class Meta:
         model = CustomUser
         fields = [
@@ -21,21 +21,24 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class PublisherSerializer(serializers.ModelSerializer):
-
+    """Publisher serializer"""
+    class Meta:
+        model = Publisher
+        fields = '__all__'
     class Meta:
         model = Publisher
         fields = '__all__'
 
 
 class NewsletterSerializer(serializers.ModelSerializer):
-
+    """Newsletter serializer"""
     class Meta:
         model = Newsletter
         fields = '__all__'
 
 
 class ArticleSerializer(serializers.ModelSerializer):
-
+    """Article serializer"""
     author = UserSerializer(read_only=True)
 
     class Meta:
