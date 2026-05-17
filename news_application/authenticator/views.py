@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required  # Makes sure only log
 from datetime import datetime
 import secrets  # For generating secure random tokens
 from datetime import timedelta
-from hashlib import sha1  # To hash tokens securely
+import hashlib  # To hash tokens securely
 from django.core.exceptions import ObjectDoesNotExist  # For handling cases when an object is not found
 
 from .models import ResetToken  # Our custom model to store reset tokens
@@ -78,8 +78,6 @@ def register_user(request):
         else:
             group, _ = Group.objects.get_or_create(name='Reader')
 
-        user.groups.add(group)
-
         login(request, user)
 
         return redirect('authenticator:welcome')
@@ -129,7 +127,7 @@ def generate_reset_url(user):
 
     expiry_date = datetime.now() + timedelta(minutes=5)  # Token expires in 5 minutes
 
-    hashed_token = sha1(token.encode()).hexdigest()  # Hash the token to store securely
+    hashed_token = hashlib.sha256(token.encode()).hexdigest()  # Hash the token to store securely
 
     ResetToken.objects.create(
         user=user,
@@ -171,7 +169,7 @@ def send_password_reset(request):
 
 def reset_user_password(request, token):
     """Handles resetting user password when the user clicks the link in their email"""
-    hashed_token = sha1(token.encode()).hexdigest()  # Hash the token from URL
+    hashed_token = hashlib.sha256(token.encode()).hexdigest()  # Hash the token from URL
 
     try:
         user_token = ResetToken.objects.get(token=hashed_token)  # Look for token in DB
@@ -217,7 +215,7 @@ def reset_password(request):
 
         try:
             user = User.objects.get(id=user_id)
-            hashed_token = sha1(token.encode()).hexdigest()
+            hashed_token = hashlib.sha256(token.encode()).hexdigest()
             reset_token = ResetToken.objects.get(token=hashed_token)
 
             # Check token expiry again

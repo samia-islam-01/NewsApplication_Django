@@ -10,11 +10,10 @@ from .models import Article, Newsletter, Publisher, CustomUser
 
 # User Groups
 def is_journalist(user):
-    return user.groups.filter(name='Journalist').exists()
-
+    return user.role == "journalist"
 
 def is_editor(user):
-    return user.groups.filter(name='Editor').exists()
+    return user.role == "editor"
 
 
 # ARTICLES

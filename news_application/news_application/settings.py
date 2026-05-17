@@ -11,7 +11,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+from dotenv import load_dotenv
+import os
 from pathlib import Path
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,10 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&+lq_irq^8d52m1#r&gy^n=iz1quw!wpe43w$_vw1i(357s+jf'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = ['*']
 
@@ -82,11 +86,11 @@ WSGI_APPLICATION = 'news_application.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'news_app_db',
-        'USER': 'django_user',
-        'PASSWORD': 'django_pass',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
     }
 }
 
@@ -126,14 +130,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_FILE_PATH = "/emails/"                                   # Path to save emails if using file backend
-EMAIL_HOST = 'smtp.gmail.com'                                 # Gmail SMTP server
-EMAIL_PORT = 587                                              # SMTP port for TLS
-EMAIL_USE_TLS = True                                          # Use TLS for security
-EMAIL_HOST_USER = 'samia14islam@gmail.com'                 # Your email address used to send mails
-EMAIL_HOST_PASSWORD = 'zoix xgno efal qzin'                   # Your email password or app password
+EMAIL_HOST = 'smtp.gmail.com'                                  # Gmail SMTP server
+EMAIL_PORT = 587                                               # SMTP port for TLS
+EMAIL_USE_TLS = True                                           # Use TLS for security
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")            # Your email address used to send mails
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")    # Your email password or app password
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
