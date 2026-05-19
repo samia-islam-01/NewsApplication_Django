@@ -10,10 +10,24 @@ from .models import Article, Newsletter, Publisher, CustomUser
 
 # User Groups
 def is_journalist(user):
-    return user.role == "journalist"
+    return (
+        user.role == "journalist"
+        or user.groups.filter(name="Journalist").exists()
+    )
+
 
 def is_editor(user):
-    return user.role == "editor"
+    return (
+        user.role == "editor"
+        or user.groups.filter(name="Editor").exists()
+    )
+
+
+def is_reader(user):
+    return (
+        user.role == "reader"
+        or user.groups.filter(name="Reader").exists()
+    )
 
 
 # ARTICLES
@@ -396,7 +410,7 @@ def view_newsletter(request, newsletter_id):
 @login_required
 def my_subscriptions(request):
     """Displays a list of a reader's subscriptions to them"""
-    if request.user.role != 'reader':
+    if not is_reader(request.user):
         return HttpResponse("Only readers can view subscriptions")
 
     journalists = request.user.subscriptions_to_journalists.all()
@@ -429,7 +443,11 @@ def create_publisher(request):
     if not is_editor(request.user):
         return HttpResponse("Only editors can create publishers")
 
-    journalists = CustomUser.objects.filter(role='journalist')
+    journalists = CustomUser.objects.filter(
+        role='journalist'
+    ) | CustomUser.objects.filter(
+        groups__name='Journalist'
+    )
     editors = CustomUser.objects.filter(role='editor')
 
     if request.method == 'POST':
@@ -467,7 +485,7 @@ def publisher_list(request):
 @login_required
 def subscribe_publisher(request, publisher_id):
     """Allows a reader to subscribe to a publisher"""
-    if request.user.role != 'reader':
+    if not is_reader(request.user):
         return HttpResponse("Only readers can subscribe")
 
     publisher = get_object_or_404(Publisher, id=publisher_id)
@@ -480,7 +498,7 @@ def subscribe_publisher(request, publisher_id):
 @login_required
 def unsubscribe_publisher(request, publisher_id):
     """Allows a reader to unsubscribe to a publisher"""
-    if request.user.role != 'reader':
+    if not is_reader(request.user):
         return HttpResponse("Only readers can unsubscribe")
 
     publisher = get_object_or_404(Publisher, id=publisher_id)
@@ -493,7 +511,11 @@ def unsubscribe_publisher(request, publisher_id):
 # JOURNALIST
 def journalist_list(request):
     """Displays a list of all journalists"""
-    journalists = CustomUser.objects.filter(role='journalist')
+    journalists = CustomUser.objects.filter(
+        role='journalist'
+    ) | CustomUser.objects.filter(
+        groups__name='Journalist'
+    )
 
     return render(request, 'main_app/journalist_list.html', {
         'journalists': journalists
@@ -503,7 +525,7 @@ def journalist_list(request):
 @login_required
 def subscribe_journalist(request, journalist_id):
     """Allows a reader to subscribe to a journalist"""
-    if request.user.role != 'reader':
+    if not is_reader(request.user):
         return HttpResponse("Only readers can subscribe")
 
     journalist = get_object_or_404(
@@ -520,7 +542,7 @@ def subscribe_journalist(request, journalist_id):
 @login_required
 def unsubscribe_journalist(request, journalist_id):
     """Allows a reader to unsubscribe to a journalist"""
-    if request.user.role != 'reader':
+    if not is_reader(request.user):
         return HttpResponse("Only readers can unsubscribe")
 
     journalist = get_object_or_404(
