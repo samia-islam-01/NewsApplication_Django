@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 
 from .models import Article
 from .serializers import ArticleSerializer
+from .views import is_reader
 
 
 @api_view(['GET'])
@@ -134,7 +135,7 @@ def api_delete_article(request, article_id):
 @permission_classes([IsAuthenticated])
 def api_subscribed_articles(request):
     """Displays a list of a reader's subscribed articles"""
-    if request.user.role != 'reader':
+    if not is_reader(request.user):
         return Response(
             {'error': 'Only readers allowed'},
             status=status.HTTP_403_FORBIDDEN
