@@ -25,9 +25,6 @@ class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publisher
         fields = '__all__'
-    class Meta:
-        model = Publisher
-        fields = '__all__'
 
 
 class NewsletterSerializer(serializers.ModelSerializer):
