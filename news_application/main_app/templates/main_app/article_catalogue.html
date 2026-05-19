@@ -3,7 +3,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2 class="fw-bold mb-0">Articles</h2>
-  {% if request.user.groups.all.0.name == "Journalist" %}
+  {% if user.role == 'journalist' or "Journalist" in user.groups.all|join:", " %}
   <a href="{% url 'main_app:create_article' %}" class="btn btn-primary">+ Create Article</a>
   {% endif %}
 </div>
