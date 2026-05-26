@@ -2,12 +2,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+import requests
 
 from django.shortcuts import get_object_or_404
 
-from .models import Article
-from .serializers import ArticleSerializer
-from .views import is_reader
+from .models import Article, Newsletter
+from .serializers import ArticleSerializer, NewsletterSerializer
 
 
 @api_view(['GET'])
@@ -135,7 +135,7 @@ def api_delete_article(request, article_id):
 @permission_classes([IsAuthenticated])
 def api_subscribed_articles(request):
     """Displays a list of a reader's subscribed articles"""
-    if not is_reader(request.user):
+    if request.user.role != 'reader':
         return Response(
             {'error': 'Only readers allowed'},
             status=status.HTTP_403_FORBIDDEN
@@ -179,6 +179,17 @@ def api_approve_article(request, article_id):
     article.approved = True
     article.save()
 
+    try:
+        requests.post(
+            "http://testserver/api/approved/",
+            data={
+                "article_id": article.id,
+                "title": article.title
+            }
+        )
+    except Exception:
+        pass  # don't break approval if logging fails
+
     return Response({
         'message': 'Article approved'
     })
@@ -198,3 +209,75 @@ def approved_article_log(request):
     return Response({
         'status':'logged'
     })
+
+
+# NEWSLETTERS
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_newsletters(request):
+    """Returns all newsletter"""
+    newsletters = Newsletter.objects.all()
+    serializer = NewsletterSerializer(newsletters, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_single_newsletter(request, newsletter_id):
+    """Returns a single newsletter"""
+    newsletter = get_object_or_404(Newsletter, id=newsletter_id)
+    serializer = NewsletterSerializer(newsletter)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_create_newsletter(request):
+    """Allows a journalist to create a new newsletter"""
+    if request.user.role != 'journalist':
+        return Response(
+            {'error': 'Only journalists can create newsletters'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    serializer = NewsletterSerializer(data=request.data)
+
+    if serializer.is_valid():
+        newsletter = serializer.save(author=request.user)
+        return Response(NewsletterSerializer(newsletter).data,
+                        status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def api_update_newsletter(request, newsletter_id):
+    """Allows a journalist or editor to update a newsletter"""
+    newsletter = get_object_or_404(Newsletter, id=newsletter_id)
+
+    if request.user.role not in ['journalist', 'editor']:
+        return Response({'error': 'Not authorized'}, status=403)
+
+    serializer = NewsletterSerializer(newsletter, data=request.data, partial=True)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+
+    return Response(serializer.errors, status=400)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def api_delete_newsletter(request, newsletter_id):
+    """Allows a journalist or editor to delete a newsletter"""
+    newsletter = get_object_or_404(Newsletter, id=newsletter_id)
+
+    if request.user.role not in ['journalist', 'editor']:
+        return Response({'error': 'Not authorized'}, status=403)
+
+    newsletter.delete()
+
+    return Response({'message': 'Newsletter deleted'})

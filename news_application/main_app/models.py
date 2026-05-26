@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from django.conf import settings
 
@@ -110,5 +110,22 @@ class CustomUser(AbstractUser):
         related_name='journalist_subscribers'
     )
 
-    def __str__(self):
-        return self.username
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        self.groups.clear()
+
+        group_map = {
+            "reader": "Reader",
+            "journalist": "Journalist",
+            "editor": "Editor"
+        }
+
+        group_name = group_map.get(self.role)
+
+        if group_name:
+            group, created = Group.objects.get_or_create(
+                name=group_name
+            )
+
+            self.groups.add(group)

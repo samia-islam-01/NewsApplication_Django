@@ -1,9 +1,12 @@
 {% extends "base.html" %}
 {% block title %}My Newsletters — NewsApp{% endblock %}
 {% block content %}
+
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2 class="fw-bold mb-0">My Newsletters</h2>
-  <a href="{% url 'main_app:create_newsletter' %}" class="btn btn-primary">+ Create New Newsletter</a>
+  <a href="{% url 'main_app:create_newsletter' %}" class="btn btn-primary">
+    + Create New Newsletter
+  </a>
 </div>
 
 {% if newsletters %}
@@ -12,30 +15,50 @@
     <thead class="table-dark">
       <tr>
         <th>Title</th>
-        <th>Author</th>
         <th>Created</th>
         <th>Articles</th>
+        <th>Actions</th>
       </tr>
     </thead>
+
     <tbody>
       {% for newsletter in newsletters %}
       <tr>
         <td>{{ newsletter.title }}</td>
-        <td>{{ newsletter.author }}</td>
+
         <td>{{ newsletter.created_at }}</td>
+
         <td>
           {% for article in newsletter.articles.all %}
-            <a href="{% url 'main_app:view_article' article.id %}" class="badge bg-secondary text-decoration-none me-1">{{ article.title }}</a>
+            <a href="{% url 'main_app:view_article' article.id %}"
+               class="badge bg-secondary text-decoration-none me-1">
+              {{ article.title }}
+            </a>
           {% empty %}
             <span class="text-muted">No articles</span>
           {% endfor %}
         </td>
+
+        <td>
+          <a href="{% url 'main_app:edit_newsletter' newsletter.id %}"
+             class="btn btn-sm btn-outline-primary me-1">
+            Edit
+          </a>
+
+          <a href="{% url 'main_app:delete_newsletter' newsletter.id %}"
+             class="btn btn-sm btn-outline-danger">
+            Delete
+          </a>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
+
   </table>
 </div>
+
 {% else %}
-<p class="text-muted">You have no newsletters yet.</p>
+  <p class="text-muted">You have no newsletters yet.</p>
 {% endif %}
+
 {% endblock %}

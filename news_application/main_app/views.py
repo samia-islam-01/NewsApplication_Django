@@ -101,8 +101,8 @@ def edit_article(request, article_id):
         if article.author != request.user:
             return HttpResponse("You can only edit your own articles")
 
-    elif not is_editor(request.user):
-        return HttpResponse("Not authorised")
+    elif not is_editor(request.user) or not request.user.is_authenticated:
+        return HttpResponse("Not authorised", status=403)
 
     if request.method == 'POST':
         article.title = request.POST['title']
@@ -127,8 +127,8 @@ def delete_article(request, article_id):
         if article.author != request.user:
             return HttpResponse("You can only delete your own articles")
 
-    elif not is_editor(request.user):
-        return HttpResponse("Not authorised")
+    elif not is_editor(request.user) or not request.user.is_authenticated:
+        return HttpResponse("Not authorised", status=403)
 
     article.delete()
     return redirect('main_app:manage_articles' if is_editor(request.user) else 'main_app:my_articles')
@@ -151,8 +151,8 @@ def article_catalogue(request):
 @login_required
 def manage_articles(request):
     """Allows editors to manage articles"""
-    if not is_editor(request.user):
-        return HttpResponse("Not authorised")
+    if not is_editor(request.user) or not request.user.is_authenticated:
+        return HttpResponse("Not authorised", status=403)
 
     articles = Article.objects.all().order_by('-created_at')
 
@@ -164,8 +164,8 @@ def manage_articles(request):
 @login_required
 def approve_article(request, article_id):
     """Allows editors to approve an article"""
-    if not is_editor(request.user):
-        return HttpResponse("Not authorised")
+    if not is_editor(request.user) or not request.user.is_authenticated:
+        return HttpResponse("Not authorised", status=403)
 
     article = get_object_or_404(
         Article,
@@ -257,8 +257,8 @@ def view_article(request, article_id):
 @login_required
 def create_newsletter(request):
     """Allows journalists to create a newsletter"""
-    if not is_journalist(request.user):
-        return HttpResponse("Not authorised")
+    if not is_journalist(request.user) or not request.user.is_authenticated:
+        return HttpResponse("Not authorised", status=403)
 
     # Get articles this user can choose from
     user_articles = Article.objects.filter(author=request.user, approved=True)
@@ -314,8 +314,8 @@ def edit_newsletter(request, newsletter_id):
     newsletter = get_object_or_404(Newsletter, id=newsletter_id)
 
     # Permissions
-    if not (is_journalist(request.user) or is_editor(request.user)):
-        return HttpResponse("Not authorised")
+    if not (is_journalist(request.user) or is_editor(request.user)) or not request.user.is_authenticated:
+        return HttpResponse("Not authorised", status=403)
 
     # Articles available to select
     if is_editor(request.user):
@@ -355,8 +355,8 @@ def delete_newsletter(request, newsletter_id):
     """Allows journalists and editors to delete a newsletter"""
     newsletter = get_object_or_404(Newsletter, id=newsletter_id)
 
-    if not (is_journalist(request.user) or is_editor(request.user)):
-        return HttpResponse("Not authorised")
+    if not (is_journalist(request.user) or is_editor(request.user)) or not request.user.is_authenticated:
+        return HttpResponse("Not authorised", status=403)
 
     if request.method == 'POST':
         newsletter.delete()
@@ -383,7 +383,7 @@ def newsletter_catalogue(request):
 @login_required
 def my_newsletters(request):
     """Allows a journalist to view their own newsletters"""
-    if not is_journalist(request.user):
+    if not is_journalist(request.user) or not request.user.is_authenticated:
         return HttpResponse("Only Journalists can view their own newsletters")
 
     # Only show newsletters owned by this user
@@ -440,7 +440,7 @@ def my_subscriptions(request):
 @login_required
 def create_publisher(request):
     """Allows an editor to create a publisher"""
-    if not is_editor(request.user):
+    if not is_editor(request.user) or not request.user.is_authenticated:
         return HttpResponse("Only editors can create publishers")
 
     journalists = CustomUser.objects.filter(
