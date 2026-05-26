@@ -47,7 +47,7 @@
       </div>
     </a>
   </div>
-  {% if user.role == 'reader' %}
+  {% if user.role == 'reader' or "Reader" in user.groups.all|join:", " %}
   <div class="col-sm-6 col-md-4">
     <a href="{% url 'main_app:my_subscriptions' %}" class="text-decoration-none">
       <div class="card h-100 shadow-sm">
@@ -61,7 +61,7 @@
   {% endif %}
 </div>
 
-{% if request.user.groups.all.0.name == "Journalist" %}
+{% if user.role == 'journalist' or "Journalist" in user.groups.all|join:", " %}
 <h4 class="mt-5 mb-3">Journalist Dashboard</h4>
 <div class="row g-3">
   <div class="col-sm-6 col-md-3">
@@ -87,7 +87,7 @@
 </div>
 {% endif %}
 
-{% if request.user.groups.all.0.name == "Editor" %}
+{% if user.role == 'editor' or "Editor" in user.groups.all|join:", " %}
 <h4 class="mt-5 mb-3">Editor Dashboard</h4>
 <div class="row g-3">
   <div class="col-sm-6 col-md-3">
