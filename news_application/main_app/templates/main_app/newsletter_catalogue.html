@@ -3,10 +3,19 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2 class="fw-bold mb-0">Newsletters</h2>
-  {% if user.role == 'journalist' or "Journalist" in user.groups.all|join:", " %}
-  <a href="{% url 'main_app:create_newsletter' %}" class="btn btn-primary">+ Create Newsletter</a>
-  {% endif %}
 </div>
+
+{% if user.role == 'reader' or "Reader" in user.groups.all|join:", " %}
+<p>View all newsletters to see who you want to subscribe to!</p>
+{% endif %}
+
+{% if user.role == 'journalist' or "Journalist" in user.groups.all|join:", " %}
+<p>View all newsletters for inspiration!</p>
+{% endif %}
+
+{% if user.role == 'editor' or "Editor" in user.groups.all|join:", " %}
+<p>View all newsletters to recruit journalists to your publisher!</p>
+{% endif %}
 
 <form method="GET" class="mb-4">
   <div class="input-group">
@@ -34,4 +43,19 @@
 {% empty %}
 <p class="text-muted">No newsletters found.</p>
 {% endfor %}
+
+{% if user.role == 'reader' or "Reader" in user.groups.all|join:", " %}
+<p>Find any journalist / publisher's newsletter interesting? Subscribe to them!</p>
+<a href="{% url 'main_app:journalist_list' %}" class="btn btn-primary btn-sm">Journalist list</a>
+<a href="{% url 'main_app:publisher_list' %}" class="btn btn-primary btn-sm">Publisher list</a>
+{% endif %}
+{% if user.role == 'journalist' or "Journalist" in user.groups.all|join:", " %}
+<p>Feeling inspired? Create a newsletter of your own!</p>
+<a href="{% url 'main_app:create_newsletter' %}" class="btn btn-primary btn-sm">+ Create Newsletter</a>
+{% endif %}
+{% if user.role == 'editor' or "Editor" in user.groups.all|join:", " %}
+<p>Find any journalist / publisher's newsletter interesting? Create a publisher with them employed!</p>
+<a href="{% url 'main_app:create_publisher' %}" class="btn btn-primary btn-sm">Create Publisher</a>
+{% endif %}
+
 {% endblock %}

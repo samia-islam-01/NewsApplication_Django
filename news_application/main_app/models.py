@@ -21,6 +21,18 @@ class Publisher(models.Model):
         blank=True
     )
 
+    pending_journalists = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='journalist_applications',
+        blank=True
+    )
+
+    pending_editors = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='editor_applications',
+        blank=True
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

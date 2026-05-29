@@ -13,13 +13,13 @@ The application also includes a fully functional RESTful API, token-based authen
 This project was built to satisfy the following requirements:
 
 *  Role-based news platform (Reader, Journalist, Editor)
-*  Article publishing system (independent or publisher* based)
+*  Article publishing system (independent or publisher based)
 *  Newsletter creation system
 *  Editorial approval workflow
 *  RESTful API for external access
 *  JWT authentication
 *  Automated unit testing
-*  Email notifications and external API integration on approval
+*  Email notifications and external API integration for when subscribed journalists / publishers release an article
 
 ---
 
@@ -28,20 +28,29 @@ This project was built to satisfy the following requirements:
 ### Reader
 *  Can view approved articles and newsletters
 *  Can subscribe to:
-  *  Publishers
-  *  Journalists
+    * Journalists
+    * Publishers
 *  Can access only subscribed content via API
 
 ### Journalist
 *  Can create articles and newsletters
 *  Can edit/delete their own content
 *  Can publish independently or under a publisher
+    * If publishing an article independently, it will be automatically approved
+*  Can apply to join a publisher
 
 ### Editor
-*  Can approve or reject articles
-*  Can edit and delete any article or newsletter
-*  Controls publication workflow
+*  Can approve articles within their publisher
+*  Can edit and delete any article or newsletter within their publisher
+*  Can create, manage and delete publishers
+*  Can apply to join a publisher
 
+
+### All Users
+* Can view all approved articles
+* Can view all newsletters
+* Can view all Journalists
+* Can view all Publishers
 ---
 
 ## Models
@@ -59,6 +68,8 @@ This project was built to satisfy the following requirements:
 *  `description`
 *  `editors` (ManyToMany)
 *  `journalists` (ManyToMany)
+*  `pending editors` (ManyToMany)
+*  `pending journalists` (ManyToMany)
 
 ### Newsletter
 *  `title`
@@ -108,7 +119,7 @@ Extends Django AbstractUser with:
 
 ## Approval Workflow (Business Logic)
 
-When an editor approves an article:
+When an editor approves an article or an article is published independently:
 
 1. Article is marked as `approved=True`
 2. Email notifications are sent to:
@@ -173,36 +184,57 @@ python manage.py test
 1. Clone repository
 ```
 git clone https://github.com/samia-islam-01/NewsApplication_Django
-cd news_application
+cd NewsApplication_Django/news_application
 ```
 2. Create virtual environment
 ```
 python -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate
+.venv\Scripts\activate
 ```
 3. Install dependencies
 ```
 pip install -r requirements.txt
 ```
-4. Install and Create MySQL database
+4. Install MYSQL using this link in your browser:
 ```
-mysql -u root -p
+https://dev.mysql.com/downloads/installer/
 ```
-5. Apply migrations
+5. Choose Setup Type Developer Default and install requirements
+6. Choose a Password Authentication method and create a password for a blank username (root)
+7. Connect to database
+8. Write in the query editor:
 ```
-python manage.py migrate
+DROP DATABASE news_app_db;
+CREATE DATABASE news_app_db;
+```
+9. Duplicate the `.env.example` file and rename it to `.env`
+10. Replace the filler values with your database name (`news_app_db`) and login credentials
+11. Create a secret key using the code below in the terminal and replace the `SECRET_KEY` value with this
+```
+python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+```
+12. Replace the email values with your email address and your Google App Password, which you can generate using the link below:
+```
+https://myaccount.google.com/apppasswords
+```
+13. Execute it using the lightning symbol 
+14. Apply migrations
+```
 python manage.py makemigrations
-
+python manage.py migrate
 ```
-6. Create superuser (optional)
+15. Create superuser (optional)
 ```
 python manage.py createsuperuser
 ```
-7. Run server
+16. Run server
 ```
 python manage.py runserver
 ```
-
+17. Type this into your browser to use the application:
+```
+http://127.0.0.1:8000
+```
 ### Technologies Used
 * Django 6
 * Django REST Framework
@@ -213,10 +245,7 @@ python manage.py runserver
 * Bootstrap (frontend UI)
 
 ### Notes
-* The project uses role-based access control via both:
-  * Django Groups
-  * CustomUser role field
-  * Article approval triggers both:
-  * Email notifications
-  * External API logging
-  * Tests use mocking to avoid sending real HTTP requests or emails
+* All users can view articles, newsletters and publishers. Although this wasn't specified in the brief, this is a personal preference
+    * Because of this, I have specified a reason that the different roles are able to see these pages (e.g. applying to join a publisher)
+* I have implemented the publisher functionality under the editor role (e.g. creating and managing)
+* In the future, I would like to implement a notification system where editors creating publishers select journalists and editors they want for it but those people have to accept the invitation in order to be a part of it, however that is not required for this task

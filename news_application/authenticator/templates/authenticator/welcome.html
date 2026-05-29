@@ -3,62 +3,8 @@
 {% block content %}
 <div class="mb-4">
   <h1 class="fw-bold">Welcome, {{ request.user.username }}!</h1>
+  <p class="font-weight-light">You are logged in as: {{ request.user.groups.all.0.name }}</p>
   <p class="text-muted">What would you like to do today?</p>
-</div>
-
-<div class="row g-3">
-  <div class="col-sm-6 col-md-4">
-    <a href="{% url 'main_app:article_catalogue' %}" class="text-decoration-none">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body text-center py-4">
-          <div class="fs-1">📄</div>
-          <h5 class="card-title mt-2">Articles</h5>
-        </div>
-      </div>
-    </a>
-  </div>
-  <div class="col-sm-6 col-md-4">
-    <a href="{% url 'main_app:newsletter_catalogue' %}" class="text-decoration-none">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body text-center py-4">
-          <div class="fs-1">📰</div>
-          <h5 class="card-title mt-2">Newsletters</h5>
-        </div>
-      </div>
-    </a>
-  </div>
-  <div class="col-sm-6 col-md-4">
-    <a href="{% url 'main_app:publisher_list' %}" class="text-decoration-none">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body text-center py-4">
-          <div class="fs-1">🏢</div>
-          <h5 class="card-title mt-2">Publishers</h5>
-        </div>
-      </div>
-    </a>
-  </div>
-  <div class="col-sm-6 col-md-4">
-    <a href="{% url 'main_app:journalist_list' %}" class="text-decoration-none">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body text-center py-4">
-          <div class="fs-1">✍️</div>
-          <h5 class="card-title mt-2">Journalists</h5>
-        </div>
-      </div>
-    </a>
-  </div>
-  {% if user.role == 'reader' or "Reader" in user.groups.all|join:", " %}
-  <div class="col-sm-6 col-md-4">
-    <a href="{% url 'main_app:my_subscriptions' %}" class="text-decoration-none">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body text-center py-4">
-          <div class="fs-1">🔔</div>
-          <h5 class="card-title mt-2">My Subscriptions</h5>
-        </div>
-      </div>
-    </a>
-  </div>
-  {% endif %}
 </div>
 
 {% if user.role == 'journalist' or "Journalist" in user.groups.all|join:", " %}
@@ -96,7 +42,7 @@
     </a>
   </div>
   <div class="col-sm-6 col-md-3">
-    <a href="{% url 'main_app:newsletter_catalogue' %}" class="text-decoration-none">
+    <a href="{% url 'main_app:manage_newsletters' %}" class="text-decoration-none">
       <div class="card shadow-sm"><div class="card-body text-center py-4"><div class="fs-2">📰</div><h6 class="mt-2">Manage Newsletters</h6></div></div>
     </a>
   </div>
@@ -105,6 +51,69 @@
       <div class="card shadow-sm"><div class="card-body text-center py-4"><div class="fs-2">🏢</div><h6 class="mt-2">Create Publisher</h6></div></div>
     </a>
   </div>
+  <div class="col-sm-6 col-md-3">
+  <a href="{% url 'main_app:manage_publishers' %}" class="text-decoration-none">
+    <div class="card shadow-sm"><div class="card-body text-center py-4"><div class="fs-2">💼</div><h6 class="mt-2">Manage Publishers</h6></div></div>
+  </a>
+  </div>
 </div>
 {% endif %}
+
+{% if user.role == 'reader' or "Reader" in user.groups.all|join:", " %}
+<h4 class="mt-5 mb-3">Reader Dashboard</h4>
+<div class="col-sm-6 col-md-3">
+  <a href="{% url 'main_app:my_subscriptions' %}" class="text-decoration-none">
+    <div class="card shadow-sm"><div class="card-body text-center py-4"><div class="fs-2">🔔</div><h6 class="mt-2">My Subscriptions</h6></div></div>
+  </a>
+</div>
+{% endif %}
+
+<br>
+<br>
+
+<h4 class="mt-5 mb-3">General Dashboard</h4>
+<div class="row g-3">
+  <div class="col-sm-6 col-md-3">
+    <a href="{% url 'main_app:article_catalogue' %}" class="text-decoration-none">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center py-4">
+          <div class="fs-1">📄</div>
+          <h5 class="card-title mt-2">Articles</h5>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-sm-6 col-md-3">
+    <a href="{% url 'main_app:newsletter_catalogue' %}" class="text-decoration-none">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center py-4">
+          <div class="fs-1">📰</div>
+          <h5 class="card-title mt-2">Newsletters</h5>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-sm-6 col-md-3">
+    <a href="{% url 'main_app:publisher_list' %}" class="text-decoration-none">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center py-4">
+          <div class="fs-1">🏢</div>
+          <h5 class="card-title mt-2">Publishers</h5>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-sm-6 col-md-3">
+    <a href="{% url 'main_app:journalist_list' %}" class="text-decoration-none">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center py-4">
+          <div class="fs-1">✍️</div>
+          <h5 class="card-title mt-2">Journalists</h5>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+
 {% endblock %}
