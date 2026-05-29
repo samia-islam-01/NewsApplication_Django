@@ -36,7 +36,6 @@ This project was built to satisfy the following requirements:
 *  Can create articles and newsletters
 *  Can edit/delete their own content
 *  Can publish independently or under a publisher
-    * If publishing an article independently, it will be automatically approved
 *  Can apply to join a publisher
 
 ### Editor
