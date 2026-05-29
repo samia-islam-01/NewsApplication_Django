@@ -3,6 +3,18 @@
 {% block content %}
 <h2 class="fw-bold mb-4">Journalists</h2>
 
+{% if user.role == 'reader' or "Reader" in user.groups.all|join:", " %}
+<p>View all journalists to see who you want to subscribe to!</p>
+{% endif %}
+
+{% if user.role == 'journalist' or "Journalist" in user.groups.all|join:", " %}
+<p>View all journalists to see who the competition is!</p>
+{% endif %}
+
+{% if user.role == 'editor' or "Editor" in user.groups.all|join:", " %}
+<p>View all journalists to see who create a publisher with!</p>
+{% endif %}
+
 {% for journalist in journalists %}
 <div class="card mb-4 shadow-sm">
   <div class="card-body">
@@ -31,4 +43,10 @@
 {% empty %}
 <p class="text-muted">No journalists found.</p>
 {% endfor %}
+
+{% if user.role == 'editor' or "Editor" in user.groups.all|join:", " %}
+<p>Want to employ this journalist? Create a publisher!</p>
+<a href="{% url 'main_app:create_publisher' %}" class="btn btn-primary btn-sm">Create Publisher</a>
+{% endif %}
+
 {% endblock %}

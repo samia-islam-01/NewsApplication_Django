@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}
+Manage Newsletters — NewsApp
+{% endblock %}
+
+{% block content %}
+
+<h2 class="fw-bold mb-4">
+    Manage Newsletters
+</h2>
+
+<div class="table-responsive">
+
+<table class="table table-striped table-hover align-middle">
+
+    <thead class="table-dark">
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Articles</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    {% for newsletter in newsletters %}
+    <tr>
+
+        <td>
+            {{ newsletter.title }}
+        </td>
+
+        <td>
+
+            {% if newsletter.publisher %}
+                {{ newsletter.publisher.name }}
+                /
+                {{ newsletter.author.username }}
+            {% else %}
+                {{ newsletter.author.username }}
+            {% endif %}
+
+        </td>
+
+        <td>
+
+            {% for article in newsletter.articles.all %}
+                <div>
+                    {{ article.title }}
+                </div>
+            {% empty %}
+                <span class="text-muted">
+                    No articles
+                </span>
+            {% endfor %}
+
+        </td>
+
+        <td>
+
+            <a href="{% url 'main_app:edit_newsletter' newsletter.id %}"
+               class="btn btn-sm btn-outline-primary me-1">
+                Edit
+            </a>
+
+            <a href="{% url 'main_app:delete_newsletter' newsletter.id %}"
+               class="btn btn-sm btn-outline-danger">
+                Delete
+            </a>
+
+        </td>
+
+    </tr>
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+</div>
+
+{% endblock %}

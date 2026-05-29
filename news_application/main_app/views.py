@@ -62,13 +62,23 @@ def create_article(request):
                 journalists=request.user
             )
 
-        Article.objects.create(
-            title=title,
-            author=request.user,
-            publisher=publisher,
-            content=content,
-            approved=False
-        )
+            Article.objects.create(
+                title=title,
+                author=request.user,
+                publisher=publisher,
+                content=content,
+                approved=False # An editor will have to approve this
+            )
+
+        # If published independently
+        else:
+            Article.objects.create(
+                title=title,
+                author=request.user,
+                publisher=publisher,
+                content=content,
+                approved=True # No editor has to approve this
+            )
 
         return redirect('main_app:my_articles')
 
@@ -154,7 +164,13 @@ def manage_articles(request):
     if not is_editor(request.user) or not request.user.is_authenticated:
         return HttpResponse("Not authorised", status=403)
 
-    articles = Article.objects.all().order_by('-created_at')
+    managed_publishers = Publisher.objects.filter(
+        editors=request.user
+    )
+
+    articles = Article.objects.filter(
+        publisher__in=managed_publishers
+    )
 
     return render(request, 'main_app/manage_articles.html', {
         'articles': articles
@@ -171,6 +187,11 @@ def approve_article(request, article_id):
         Article,
         id=article_id
     )
+
+    if article.publisher:
+    # Check the editor is part of the publisher that published this article
+        if request.user not in article.publisher.editors.all():
+            return HttpResponse("Not allowed", status=403)
 
     if article.approved:
         article.approved = False
@@ -406,6 +427,43 @@ def view_newsletter(request, newsletter_id):
     })
 
 
+@login_required
+def manage_newsletters(request):
+    """Allows users to manage newsletters"""
+
+    # Editors
+    if is_editor(request.user):
+
+        managed_publishers = Publisher.objects.filter(
+            editors=request.user
+        )
+
+        newsletters = Newsletter.objects.filter(
+            publisher__in=managed_publishers
+        )
+
+    # Journalists
+    elif is_journalist(request.user):
+
+        newsletters = Newsletter.objects.filter(
+            author=request.user
+        )
+
+    else:
+        return HttpResponse(
+            "Not authorised",
+            status=403
+        )
+
+    return render(
+        request,
+        'main_app/manage_newsletters.html',
+        {
+            'newsletters': newsletters
+        }
+    )
+
+
 # READER SUBSCRIPTIONS
 @login_required
 def my_subscriptions(request):
@@ -448,7 +506,7 @@ def create_publisher(request):
     ) | CustomUser.objects.filter(
         groups__name='Journalist'
     )
-    editors = CustomUser.objects.filter(role='editor')
+    editors = CustomUser.objects.filter(role='editor').exclude(id=request.user.id)
 
     if request.method == 'POST':
 
@@ -465,6 +523,8 @@ def create_publisher(request):
 
         publisher.journalists.set(selected_journalists)
         publisher.editors.set(selected_editors)
+
+        publisher.editors.add(request.user)
 
         return redirect('main_app:publisher_list')
 
@@ -506,6 +566,230 @@ def unsubscribe_publisher(request, publisher_id):
     request.user.subscriptions_to_publishers.remove(publisher)
 
     return redirect('main_app:publisher_list')
+
+
+@login_required
+def apply_journalist(request, publisher_id):
+    """Allows a journalist to apply to a publisher"""
+    if not is_journalist(request.user):
+        return HttpResponse("Not authorised")
+
+    publisher = get_object_or_404(
+        Publisher,
+        id=publisher_id
+    )
+
+    publisher.pending_journalists.add(request.user)
+
+    return redirect('main_app:publisher_list')
+
+
+@login_required
+def apply_editor(request, publisher_id):
+    """Allows an editor to apply to a publisher"""
+    if not is_editor(request.user):
+        return HttpResponse("Not authorised")
+
+    publisher = get_object_or_404(
+        Publisher,
+        id=publisher_id
+    )
+
+    publisher.pending_editors.add(request.user)
+
+    return redirect('main_app:publisher_list')
+
+
+@login_required
+def approve_journalist(request, publisher_id, user_id):
+    """Allows an editor to approve a journalist to a publisher"""
+    publisher = get_object_or_404(
+        Publisher,
+        id=publisher_id
+    )
+
+    if not is_editor(request.user):
+        return HttpResponse("Not authorised")
+
+    journalist = get_object_or_404(
+        CustomUser,
+        id=user_id,
+        role='journalist'
+    )
+
+    publisher.pending_journalists.remove(journalist)
+
+    publisher.journalists.add(journalist)
+
+    return redirect(
+        'main_app:manage_publisher',
+        publisher.id
+    )
+
+
+@login_required
+def reject_journalist(request, publisher_id, user_id):
+    """Allows an editor to reject a journalist applying to a publisher"""
+    publisher = get_object_or_404(
+        Publisher,
+        id=publisher_id
+    )
+
+    if not is_editor(request.user):
+        return HttpResponse("Not authorised")
+
+    journalist = get_object_or_404(
+        CustomUser,
+        id=user_id,
+        role="journalist"
+    )
+
+    publisher.pending_journalists.remove(
+        journalist
+    )
+
+    return redirect(
+        "main_app:manage_publishers"
+    )
+
+
+@login_required
+def approve_editor(request, publisher_id, user_id):
+    """Allows an editor to approve an editor to a publisher"""
+    publisher = get_object_or_404(
+        Publisher,
+        id=publisher_id
+    )
+
+    if not is_editor(request.user):
+        return HttpResponse("Not authorised")
+
+    editor = get_object_or_404(
+        CustomUser,
+        id=user_id,
+        role='editor'
+    )
+
+    publisher.pending_editors.remove(editor)
+
+    publisher.editors.add(editor)
+
+    return redirect(
+        'main_app:manage_publisher',
+        publisher.id
+    )
+
+@login_required
+def reject_editor(request, publisher_id, user_id):
+    """Allows an editor to reject an editor applying to a publisher"""
+    publisher = get_object_or_404(
+        Publisher,
+        id=publisher_id
+    )
+
+    if request.user not in publisher.editors.all():
+        return redirect("main_app:publisher_list")
+
+    editor = get_object_or_404(
+        CustomUser,
+        id=user_id,
+        role="editor"
+    )
+
+    publisher.pending_editors.remove(
+        editor
+    )
+
+    return redirect(
+        "main_app:manage_publishers"
+    )
+
+
+@login_required
+def manage_publishers(request):
+
+    if not is_editor(request.user):
+        return HttpResponse("Not authorised")
+
+    publishers = Publisher.objects.filter(
+        editors=request.user
+    )
+
+    return render(
+        request,
+        "main_app/manage_publishers.html",
+        {
+            "publishers": publishers
+        }
+    )
+
+
+@login_required
+def remove_journalist(request, publisher_id, user_id):
+    """Allows an editor to remove a journalist from a publisher"""
+    publisher = get_object_or_404(
+        Publisher,
+        id=publisher_id
+    )
+
+    if request.user not in publisher.editors.all():
+        return HttpResponse("Not authorised")
+
+    journalist = get_object_or_404(
+        CustomUser,
+        id=user_id
+    )
+
+    publisher.journalists.remove(
+        journalist
+    )
+
+    return redirect(
+        'main_app:manage_publishers'
+    )
+
+
+@login_required
+def remove_editor(request, publisher_id, user_id):
+    """Allows an editor to remove an editor from a publisher"""
+    publisher = get_object_or_404(
+        Publisher,
+        id=publisher_id
+    )
+
+    if request.user not in publisher.editors.all():
+        return HttpResponse("Not authorised")
+
+    editor = get_object_or_404(
+        CustomUser,
+        id=user_id
+    )
+
+    publisher.editors.remove(
+        editor
+    )
+
+    return redirect(
+        'main_app:manage_publishers'
+    )
+
+
+@login_required
+def delete_publisher(request, publisher_id):
+    """Allows an editor to delete a publisher"""
+    publisher = get_object_or_404(
+        Publisher,
+        id=publisher_id
+    )
+
+    if request.user not in publisher.editors.all():
+        return HttpResponse("Not authorised")
+
+    publisher.delete()
+
+    return redirect(
+        'main_app:manage_publishers'
+    )
 
 
 # JOURNALIST
@@ -554,3 +838,19 @@ def unsubscribe_journalist(request, journalist_id):
     request.user.subscriptions_to_journalists.remove(journalist)
 
     return redirect('main_app:journalist_list')
+
+
+@login_required
+def apply_journalist(request, publisher_id):
+
+    if request.user.role != 'journalist':
+        return HttpResponse("Only journalists can apply")
+
+    publisher = get_object_or_404(
+        Publisher,
+        id=publisher_id
+    )
+
+    publisher.pending_journalists.add(request.user)
+
+    return redirect('main_app:publisher_list')

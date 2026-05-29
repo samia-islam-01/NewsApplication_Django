@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}
+Manage Publishers — NewsApp
+{% endblock %}
+
+{% block content %}
+
+<h2 class="fw-bold mb-4">
+    Manage Publishers
+</h2>
+
+{% if publishers %}
+
+<div class="table-responsive">
+<table class="table table-hover align-middle">
+
+    <thead class="table-dark">
+        <tr>
+            <th>Publisher</th>
+            <th>Journalists</th>
+            <th>Editors</th>
+            <th>Pending Applications</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    {% for publisher in publishers %}
+    <tr>
+
+        <td>
+            <strong>{{ publisher.name }}</strong>
+            <br>
+            <small class="text-muted">
+                {{ publisher.description }}
+            </small>
+        </td>
+
+        <td>
+            {% for journalist in publisher.journalists.all %}
+                <div>{{ journalist.username }}</div>
+            {% empty %}
+                <span class="text-muted">
+                    None
+                </span>
+            {% endfor %}
+        </td>
+
+        <td>
+            {% for editor in publisher.editors.all %}
+                <div>{{ editor.username }}</div>
+            {% empty %}
+                <span class="text-muted">
+                    None
+                </span>
+            {% endfor %}
+        </td>
+
+        <td>
+
+            <strong>Journalists</strong>
+
+            {% for applicant in publisher.pending_journalists.all %}
+
+                <div class="mb-2">
+
+                    {{ applicant.username }}
+
+                    <a href="{% url 'main_app:approve_journalist' publisher.id applicant.id %}"
+                       class="btn btn-success btn-sm ms-2">
+                        Approve
+                    </a>
+
+                    <a href="{% url 'main_app:reject_journalist' publisher.id applicant.id %}"
+                       class="btn btn-danger btn-sm">
+                        Reject
+                    </a>
+
+                    <a href="{% url 'main_app:remove_journalist' publisher.id journalist.id %}"
+                       class="btn btn-outline-danger btn-sm">
+                        Remove
+                    </a>
+
+                </div>
+
+            {% empty %}
+                <div class="text-muted mb-2">
+                    No journalist applications
+                </div>
+            {% endfor %}
+
+            <strong>Editors</strong>
+
+            {% for applicant in publisher.pending_editors.all %}
+
+                <div class="mb-2">
+
+                    {{ applicant.username }}
+
+                    <a href="{% url 'main_app:approve_editor' publisher.id applicant.id %}"
+                       class="btn btn-success btn-sm ms-2">
+                        Approve
+                    </a>
+                    <a href="{% url 'main_app:reject_editor' publisher.id applicant.id %}"
+                       class="btn btn-danger btn-sm">
+                        Reject
+                    </a>
+                    {% if editor != user %}
+                    <a href="{% url 'main_app:remove_editor' publisher.id editor.id %}"
+                       class="btn btn-outline-danger btn-sm">
+                        Remove
+                    </a>
+                    {% endif %}
+                </div>
+
+            {% empty %}
+                <div class="text-muted">
+                    No editor applications
+                </div>
+            {% endfor %}
+
+        </td>
+        <td>
+        <div class="mb-2">
+            <a href="{% url 'main_app:delete_publisher' publisher.id %}"
+               class="btn btn-danger btn-sm">
+                Delete Publisher
+            </a>
+        </div>
+        </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+
+</table>
+</div>
+
+{% else %}
+
+<p class="text-muted">
+    You are not managing any publishers.
+</p>
+
+{% endif %}
+
+{% endblock %}

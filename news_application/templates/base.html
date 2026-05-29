@@ -50,8 +50,9 @@
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Editor</a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{% url 'main_app:manage_articles' %}">Manage Articles</a></li>
-            <li><a class="dropdown-item" href="{% url 'main_app:newsletter_catalogue' %}">Manage Newsletters</a></li>
+            <li><a class="dropdown-item" href="{% url 'main_app:manage_newsletters' %}">Manage Newsletters</a></li>
             <li><a class="dropdown-item" href="{% url 'main_app:create_publisher' %}">Create Publisher</a></li>
+            <li><a class="dropdown-item" href="{% url 'main_app:manage_publishers' %}">Manage Publishers</a></li>
           </ul>
         </li>
         {% endif %}

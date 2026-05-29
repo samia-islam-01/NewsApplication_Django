@@ -3,10 +3,19 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2 class="fw-bold mb-0">Publishers</h2>
-  {% if user.role == 'editor' %}
-  <a href="{% url 'main_app:create_publisher' %}" class="btn btn-primary">+ Create Publisher</a>
-  {% endif %}
 </div>
+
+{% if user.role == 'reader' or "Reader" in user.groups.all|join:", " %}
+<p>View all publishers to see who you want to subscribe to!</p>
+{% endif %}
+
+{% if user.role == 'journalist' or "Journalist" in user.groups.all|join:", " %}
+<p>View all publishers to see who to apply to join!</p>
+{% endif %}
+
+{% if user.role == 'editor' or "Editor" in user.groups.all|join:", " %}
+<p>View all publishers to see who to apply to join!</p>
+{% endif %}
 
 {% for publisher in publishers %}
 <div class="card mb-4 shadow-sm">
@@ -45,6 +54,18 @@
         <li class="text-muted">No published articles</li>
       {% endfor %}
     </ul>
+    <h6>Published Newsletters</h6>
+    <ul class="list-unstyled mb-3">
+      {% for newsletter in publisher.newsletter_set.all %}
+        <li>
+          <a href="{% url 'main_app:view_newsletter' newsletter.id %}">
+            {{ newsletter.title }}
+          </a>
+        </li>
+      {% empty %}
+        <li class="text-muted">No published newsletters</li>
+      {% endfor %}
+    </ul>
     {% if user.is_authenticated and user.role == 'reader' %}
     <div>
       {% if publisher in user.subscriptions_to_publishers.all %}
@@ -54,9 +75,53 @@
       {% endif %}
     </div>
     {% endif %}
+    {% if user.is_authenticated and user.role == 'journalist' %}
+    <div class="mt-2">
+      {% if user in publisher.journalists.all %}
+        <span class="badge bg-success">
+          Member Journalist
+        </span>
+      {% elif user in publisher.pending_journalists.all %}
+        <span class="badge bg-warning text-dark">
+          Application Pending
+        </span>
+      {% else %}
+        <a href="{% url 'main_app:apply_journalist' publisher.id %}"
+           class="btn btn-outline-dark btn-sm">
+           Apply as Journalist
+        </a>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% if user.is_authenticated and user.role == 'editor' %}
+
+    <div class="mt-2">
+      {% if user in publisher.editors.all %}
+        <span class="badge bg-success">
+          Member: Editor
+        </span>
+      {% elif user in publisher.pending_editors.all %}
+        <span class="badge bg-warning text-dark">
+          Application Pending
+        </span>
+      {% else %}
+        <a href="{% url 'main_app:apply_editor' publisher.id %}"
+           class="btn btn-outline-dark btn-sm">
+
+           Apply as Editor
+        </a>
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
 </div>
 {% empty %}
 <p class="text-muted">No publishers created yet.</p>
 {% endfor %}
+
+{% if user.role == 'editor' or "Editor" in user.groups.all|join:", " %}
+<p>Want to keep up with the competition? Create a publisher!</p>
+<a href="{% url 'main_app:create_publisher' %}" class="btn btn-primary btn-sm">Create Publisher</a>
+{% endif %}
+
 {% endblock %}
