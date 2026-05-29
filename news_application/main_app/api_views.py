@@ -179,37 +179,6 @@ def api_approve_article(request, article_id):
     article.approved = True
     article.save()
 
-    try:
-        requests.post(
-            "http://testserver/api/approved/",
-            data={
-                "article_id": article.id,
-                "title": article.title
-            }
-        )
-    except Exception:
-        pass  # don't break approval if logging fails
-
-    return Response({
-        'message': 'Article approved'
-    })
-
-
-@api_view(['POST'])
-def approved_article_log(request):
-    """Creates a log for an approved article to be used in an email to subscribed readers"""
-    article_id = request.data.get('article_id')
-    title = request.data.get('title')
-
-    print(
-        f"External article shared:"
-        f"{article_id} - {title}"
-    )
-
-    return Response({
-        'status':'logged'
-    })
-
 
 # NEWSLETTERS
 
