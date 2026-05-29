@@ -77,7 +77,7 @@ def create_article(request):
                 author=request.user,
                 publisher=publisher,
                 content=content,
-                approved=True # No editor has to approve this
+                approved=False
             )
 
         return redirect('main_app:my_articles')
